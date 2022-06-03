@@ -139,5 +139,5 @@ cgi::~cgi( void )
 {
 	close(this->fd_input);
 	close(this->fd_output);
-    // remove((*this->req).body_content.c_str());
+    remove((*this->req).body_content.c_str());
 }

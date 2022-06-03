@@ -40,3 +40,5 @@ webserv
 
 # runtime files
 workdir/*
+REQ_*
+165*
