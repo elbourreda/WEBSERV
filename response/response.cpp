@@ -224,7 +224,7 @@ void	Response::output_file( ServerRoutes const & route )
 
 	if ( end_file.is_open() )
 	{
-		end_file << "HTTP/1.1 " << this->statusCode << " OK" << "\r\n";
+		end_file << "HTTP/1.1 " << getStatusByCode(this->statusCode) << "\r\n";
 
 		// if cgi
 		if ( this->_req.IsPhpFile /*&& route.getPhpCgi() != ""*/ )
