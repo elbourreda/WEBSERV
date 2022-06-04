@@ -52,6 +52,7 @@ class _socket
         void ft_restart();
         void search(int socket);
         int max(int x, int y);
+        long long int calculateSizeDone(std::string filename);
         _socket();
         ~_socket();
         
