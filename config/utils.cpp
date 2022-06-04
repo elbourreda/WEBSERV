@@ -81,7 +81,7 @@ std::string preparehref(std::string const & filename, std::string const & req)
 	return ("<a href='" + req + ( req.size()>1?"/":"") + filename + "'>" + filename + "</a>");
 }
 
-void generate_dirlist(std::string const & o_file, std::string const & full_path, std::string const & req)
+void generate_dirlist(std::string const & o_file, std::string full_path, std::string const & req)
 {
 	DIR				*dir;
 	struct dirent	*ent;
@@ -100,7 +100,11 @@ void generate_dirlist(std::string const & o_file, std::string const & full_path,
 			std::string		filename(ent->d_name);
 			struct stat		sb;
 
-			stat(std::string(full_path + ent->d_name).c_str(), &sb);
+			if (full_path[full_path.size()-1] != '/')
+				full_path += "/";
+			full_path += ent->d_name;
+
+			stat(full_path.c_str(), &sb);
 			myfile
 				<< preparehref(filename, req)
 				<< std::setw(60 - (preparehref(filename, req).length() / 2))
