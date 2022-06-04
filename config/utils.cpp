@@ -116,6 +116,36 @@ void generate_dirlist(std::string const & o_file, std::string full_path, std::st
 	myfile.close();
 }
 
+std::string getStatusByCode(int sCode)
+{
+    std::map<int, std::string> status;
+    status[200] = "200 OK";
+    status[400] = "400 Bad Request";
+    status[401] = "401 Unauthorized";
+    status[403] = "403 Forbidden";
+    status[404] = "404 Not Found";
+    status[405] = "405 Method Not Allowed";
+    status[406] = "406 Not Acceptable";
+    status[408] = "408 Request Timeout";
+    status[411] = "411 Length Required";
+    status[413] = "413 Payload Too Large";
+    status[414] = "414 URI Too Long";
+    status[415] = "415 Unsupported Media Type";
+    status[429] = "429 Too Many Requests";
+    status[431] = "431 Request Header Fields Too Large";
+    status[500] = "500 Internal Server Error";
+    status[502] = "502 Bad Gateway";
+    status[503] = "503 Service Unavailable";
+    status[504] = "504 Gateway Timeout";
+    status[505] = "505 HTTP Version Not Supported";
+    status[508] = "508 Loop Detected";
+    status[301] = "301 Moved Permanently";
+    status[302] = "302 Found";
+    status[304] = "304 Not Modified";
+
+    return (status[sCode]);
+}
+
 std::string searchByExtension(std::string const & extention)
 {
     std::map<std::string, std::string> types;

@@ -24,5 +24,6 @@ std::string					concat(std::string const & s, int i);
 long long int				calculateSize(std::string filename);
 void						generate_dirlist(std::string const &, std::string, std::string const &);
 std::string					searchByExtension(std::string const & extention);
+std::string					getStatusByCode(int sCode);
 
 #endif
