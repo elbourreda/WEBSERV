@@ -8,9 +8,8 @@ ServerRoutes::ServerRoutes( void )
 	this->_root = "/tmp/www";
 	this->_dir_list = false;
 	this->_phpcgi = "";
-	this->_error_403 = "./pages/403.html";
-	this->_error_404 = "./pages/404.html";
-	this->_error_405 = "./pages/405.html";
+	this->_upload = true;
+	this->_upload_dir = "/tmp/upload";
 }
 
 ServerRoutes::ServerRoutes( ServerRoutes const & src )
@@ -27,6 +26,9 @@ ServerRoutes & ServerRoutes::operator=( ServerRoutes const & src )
 	this->_dir_list = src._dir_list;
 	this->_indexes = src._indexes;
 	this->_methods = src._methods;
+	this->_phpcgi = src._phpcgi;
+	this->_upload = src._upload;
+	this->_upload_dir = src._upload_dir;
 
 	return *this;
 }
@@ -98,21 +100,6 @@ bool ServerRoutes::isMethodAllowed( string const & method ) const
 	);
 }
 
-string ServerRoutes::get403Page( void ) const
-{
-	return this->_error_404;
-}
-
-string ServerRoutes::get404Page( void ) const
-{
-	return this->_error_404;
-}
-
-string ServerRoutes::get405Page( void ) const
-{
-	return this->_error_404;
-}
-
 void ServerRoutes::setRedirectionCode( int const & redirection )
 {
 	this->_redirection_code = redirection;
@@ -176,19 +163,4 @@ void ServerRoutes::setUpload( string const & upload )
 void ServerRoutes::setUploadDir( string const & upload )
 {
 	this->_upload_dir = upload;
-}
-
-void ServerRoutes::set403Page( string const & page )
-{
-	this->_error_404 = page;
-}
-
-void ServerRoutes::set404Page( string const & page )
-{
-	this->_error_404 = page;
-}
-
-void ServerRoutes::set405Page( string const & page )
-{
-	this->_error_404 = page;
 }

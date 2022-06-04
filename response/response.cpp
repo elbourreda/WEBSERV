@@ -37,19 +37,6 @@ Response::Response( int & fd, Request & request )
 */
 void		Response::start( void )
 {
-	/*
-		127.0.0.1	/
-		127.0.0.1	/	81
-
-		127.0.0.2	/
-
-		127.0.0.3	/path
-		127.0.0.3	/path/file.html
-	*/
-
-// 1 location
-// 2 path
-
 	string			host = this->_req.host;
 	string			path = this->_req.RequestFile;
 	int				port = atoi(this->_req.port.c_str());
@@ -64,23 +51,17 @@ void		Response::start( void )
 	paths_splitted = s_split(path, '/');
 	
 	if ( paths_splitted.back().find('.') == string::npos )
-	{
 		route = server.getRoute(path);
-	}
 	// path contains a filename
 	else
 	{
 		// in case the path was /file.html
 		if ( paths_splitted.size() == 1 )
-		{
 			route = server.getRoute("/");
-		}
 		// multiple subdirectories
 		else
-		{
 			// remove last / that points to file
 			route = server.getRoute(path.substr(0, path.rfind('/')));
-		}
 	}
 	/*	WHICH ROUTE	*/
 
@@ -91,10 +72,10 @@ void		Response::start( void )
 	if ( paths_splitted.back().find('.') == string::npos )
 	{
 		string requested_dir = route.getRoot() + path;
-		if ( stat(requested_dir.c_str(), &info) != 0)
+		if ( stat(requested_dir.c_str(), &info) != 0 )
 		{
 			this->statusCode = 404;
-			this->responseFile = route.get404Page();
+			this->responseFile = server.get404Page();
 		}
 		else if( info.st_mode & S_IFDIR )
 		{
@@ -116,18 +97,22 @@ void		Response::start( void )
 					string output_file_name = concat("workdir/dirlist_", this->timestamp);
 					generate_dirlist(output_file_name, route.getRoot() + path, this->_req.RequestFile);
 					this->responseFile = output_file_name;
+
+					if ( this->responseFile.size() > 4 &&
+						 this->responseFile.substr(this->responseFile.size() - 4) == ".php" )
+						this->_req.IsPhpFile = true;
 				}
 				else
 				{
 					this->statusCode = 403;
-					this->responseFile = route.get403Page();
+					this->responseFile = server.get403Page();
 				}
 			}
 		}
 		else
 		{
 			this->statusCode = 404;
-			this->responseFile = route.get404Page();
+			this->responseFile = server.get404Page();
 		}
 	}
 
@@ -139,7 +124,7 @@ void		Response::start( void )
 		if ( stat(requested_file.c_str(), &info) != 0)
 		{
 			this->statusCode = 404;
-			this->responseFile = route.get404Page();
+			this->responseFile = server.get404Page();
 		}
 		else
 		{
@@ -170,11 +155,15 @@ void		Response::start( void )
 						string output_file_name = concat("workdir/dirlist_", this->timestamp);
 						generate_dirlist(output_file_name, route.getRoot() + path, this->_req.RequestFile);
 						this->responseFile = output_file_name;
+
+						if ( this->responseFile.size() > 4 &&
+							 this->responseFile.substr(this->responseFile.size() - 4) == ".php" )
+							this->_req.IsPhpFile = true;
 					}
 					else
 					{
 						this->statusCode = 403;
-						this->responseFile = route.get403Page();
+						this->responseFile = server.get403Page();
 					}
 				}
 			}
@@ -182,14 +171,61 @@ void		Response::start( void )
 	}
 	/*	REQUESTED FILE AND AUTOINDEX	*/
 
+	/*	CGI AVAILABILITY	*/
+	if ( this->_req.IsPhpFile && route.getPhpCgi() != "" )
+	{
+		// check if php-cgi is a file
+		struct stat info;
+		if ( !(stat(route.getPhpCgi().c_str(), &info) != 0
+			&& info.st_mode & S_IFREG) )
+		{
+			this->statusCode = 502;
+			this->responseFile = server.get502Page();
+		}
+	}
+	/*	CGI AVAILABILITY	*/
+
+	/*		*/
+	if ( this->_req.Content_length > server.getBodySizeLimit() )
+	{
+		this->statusCode = 413;
+		this->responseFile = server.get413Page();
+	}
+	/*		*/
+
+	/*	REDIRECTION	*/
+	if ( (route.getRedirectionCode() == 301 || route.getRedirectionCode() == 302)
+		&& route.getRedirectionUrl() != "" )
+	{
+		string header;
+		header = "HTTP/1.1 " + getStatusByCode(route.getRedirectionCode()) + "\r\n";
+		write(this->_fd_out, header.c_str(), header.size());
+		header = "Location: " + route.getRedirectionUrl() + "\r\n";
+		write(this->_fd_out, header.c_str(), header.size());
+	}
+	/*	REDIRECTION	*/
 
 	/*	METHOD CHECK	*/
 	if (route.isMethodAllowed(this->_req.method) == false)
 	{
 		this->statusCode = 405;
-		this->responseFile = route.get405Page();
+		cout << server.get405Page() << endl;
+		this->responseFile = server.get405Page();
 	}
 	/*	METHOD CHECK	*/
+
+	/*	400	*/
+	/* loop through method check if char is lowercase */
+	for ( int i = 0; i < this->_req.method.size(); i++ )
+	{
+		if ( islower(this->_req.method[i]) )
+		{
+			this->statusCode = 400;
+			this->responseFile = server.get400Page();
+			break;
+		}
+	}
+	/*	400	*/
 
 	this->output_file( route );
 
@@ -229,54 +265,62 @@ void	Response::output_file( ServerRoutes const & route )
 
 	if ( end_file.is_open() )
 	{
-		end_file << "HTTP/1.1 " << getStatusByCode(this->statusCode) << "\r\n";
-
-		// if cgi
-		if ( this->_req.IsPhpFile /*&& route.getPhpCgi() != ""*/ )
+		if (this->statusCode == 200)
 		{
-			// cout << "CGI" << endl;
-			// execute cgi
-			cgi _cgi( this->_req, route.getPhpCgi() );
-			// calculate and cgi outputfile size without header
-			/*	REDA	*/
-			end_file << "Content-Length: " << (GetLengthFileCgi(_cgi.outputfile)) << "\r\n";
-			// std::cout << "len of cgi body ==> " << GetLengthFileCgi(_cgi.outputfile) << "\n";
+			if ( this->_req.IsPhpFile && route.getPhpCgi() != "" )
+			{
+				// PHP CGI
+				end_file << "HTTP/1.1 " << "200 OK" << "\r\n";
+				end_file << "Content-Length: " << calculateSize(this->responseFile) << "\r\n";
+
+				cgi _cgi( this->_req, route.getPhpCgi() );
+				this->responseFile = _cgi.outputfile;
+
+				ifstream i_file(this->responseFile, ios::binary);
+				if (i_file)
+				{
+					end_file << i_file.rdbuf();
+				}
+				i_file.close();
+
+				remove(this->responseFile.c_str());
+			}
+
+			else
+			{
+				// HTML
+				end_file << "HTTP/1.1 " << "200 OK" << "\r\n";
+				end_file << "Content-Length: " << calculateSize(this->responseFile) << "\r\n";
+				end_file << "Content-Type: " << getContentType(this->responseFile) << "\r\n";
+				end_file << "\r\n";
+
+				ifstream i_file(this->responseFile, ios::binary);
+				if (i_file)
+				{
+					end_file << i_file.rdbuf();
+				}
+				i_file.close();
+			}
 		}
 
-		// not cgi
-		else
+		else if (this->statusCode != 301 || this->statusCode != 302)
 		{
-			// cout << "NOT CGI" << endl;
-			// calculate and output header length
+			// HTML
+			end_file << "HTTP/1.1 " << getStatusByCode(this->statusCode) << "\r\n";
 			end_file << "Content-Length: " << calculateSize(this->responseFile) << "\r\n";
 			end_file << "Content-Type: " << getContentType(this->responseFile) << "\r\n";
 			end_file << "\r\n";
-		}
 
-
-		{
-			// copy response file to end_file
-			/* reda */
-			std::string FinalResponseFile;
-			if (!this->_req.IsPhpFile)
-				FinalResponseFile = this->responseFile.c_str();
-			else
-				FinalResponseFile = "/tmp/resp_body";
-
-			ifstream i_file(FinalResponseFile, ios::binary);				
-			// ifstream i_file(this->responseFile.c_str(), ios::binary);				
+			ifstream i_file(this->responseFile, ios::binary);
 			if (i_file)
 			{
 				end_file << i_file.rdbuf();
 			}
 			i_file.close();
-			if (this->_req.IsPhpFile)
-				remove("/tmp/resp_body");
-			
 		}
-	}
 
-	end_file.close();
+		end_file.close();
+	}
 }
 
 // write response file to client

@@ -6,8 +6,13 @@ ServerConfig::ServerConfig( void )
 	this->_port = -1;
 	this->_body_size_limit = 1024;
 	this->_name = "";
-	this->_error_pages = vector< string >();
 	this->_routes = vector< ServerRoutes >();
+	this->_error_400 = "./pages/400.html";
+	this->_error_403 = "./pages/403.html";
+	this->_error_404 = "./pages/404.html";
+	this->_error_405 = "./pages/405.html";
+	this->_error_413 = "./pages/413.html";
+	this->_error_502 = "./pages/502.html";
 }
 
 ServerConfig::ServerConfig( ServerConfig const & src )
@@ -21,8 +26,13 @@ ServerConfig & ServerConfig::operator=( ServerConfig const & src )
 	this->_port = src._port;
 	this->_body_size_limit = src._body_size_limit;
 	this->_name = src._name;
-	this->_error_pages = src._error_pages;
 	this->_routes = src._routes;
+	this->_error_400 = src._error_400;
+	this->_error_403 = src._error_403;
+	this->_error_404 = src._error_404;
+	this->_error_405 = src._error_405;
+	this->_error_413 = src._error_413;
+	this->_error_502 = src._error_502;
 
 	return *this;
 }
@@ -40,14 +50,14 @@ int ServerConfig::getPort( void ) const
 	return this->_port;
 }
 
+long long ServerConfig::getBodySizeLimit( void ) const
+{
+	return this->_body_size_limit;
+}
+
 string ServerConfig::getName( void ) const
 {
 	return this->_name;
-}
-
-vector< string > ServerConfig::getErrorPages( void ) const
-{
-	return this->_error_pages;
 }
 
 ServerRoutes		ServerConfig::getRootRoute( void ) const // throw( string & )
@@ -107,7 +117,7 @@ void ServerConfig::setPort(int const & port )
 	this->_port = port;
 }
 
-void ServerConfig::setBodySizeLimit( int const & b_s_l )
+void ServerConfig::setBodySizeLimit( long long const & b_s_l )
 {
 	this->_body_size_limit = b_s_l;
 }
@@ -117,12 +127,67 @@ void ServerConfig::setName( string const & name )
 	this->_name = name;
 }
 
-void ServerConfig::addErrorPage( string const & error_page )
-{
-	this->_error_pages.push_back( error_page );
-}
-
 void ServerConfig::addRoute( ServerRoutes const & route )
 {
 	this->_routes.push_back( route );
+}
+
+string ServerConfig::get400Page( void ) const
+{
+	return this->_error_400;
+}
+
+void ServerConfig::set400Page( string const & page )
+{
+	this->_error_400 = page;
+}
+
+string ServerConfig::get403Page( void ) const
+{
+	return this->_error_403;
+}
+
+void ServerConfig::set403Page( string const & page )
+{
+	this->_error_403 = page;
+}
+
+string ServerConfig::get404Page( void ) const
+{
+	return this->_error_404;
+}
+
+void ServerConfig::set404Page( string const & page )
+{
+	this->_error_404 = page;
+}
+
+string ServerConfig::get405Page( void ) const
+{
+	return this->_error_405;
+}
+
+void ServerConfig::set405Page( string const & page )
+{
+	this->_error_405 = page;
+}
+
+string ServerConfig::get413Page( void ) const
+{
+	return this->_error_413;
+}
+
+void ServerConfig::set413Page( string const & page )
+{
+	this->_error_413 = page;
+}
+
+string ServerConfig::get502Page( void ) const
+{
+	return this->_error_502;
+}
+
+void ServerConfig::set502Page( string const & page )
+{
+	this->_error_502 = page;
 }

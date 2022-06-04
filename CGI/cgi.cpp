@@ -112,7 +112,7 @@ void cgi::SetCgiEnv( void )
 		setenv("QUERY_STRING", "", 1);
 		setenv("CONTENT_LENGTH", std::to_string(((*this->req).Content_length)).c_str(), 1);
 	}
-	this->args[0] = (char *)"/Users/rel-bour/goinfre/rel-bour/.brew/bin/php-cgi";
+	this->args[0] = (char *)this->_pathcgi.c_str();
 	this->args[1] = NULL;
     this->fd_output = open(this->outputfile.c_str(), O_CREAT | O_WRONLY , 0666);     // path of where you ant to save the body response
     this->fd_input = open((*this->req).body_content.c_str(), O_RDONLY);

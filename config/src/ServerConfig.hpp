@@ -12,12 +12,17 @@ using namespace std;
 class ServerConfig
 {
 	private:
-		int						_body_size_limit;
-		vector< string >		_error_pages; // ?
+		long long				_body_size_limit;
 		string					_host;
 		string					_name;
 		int						_port;
 		vector< ServerRoutes >	_routes;
+		string					_error_400;
+		string					_error_403;
+		string					_error_404;
+		string					_error_405;
+		string					_error_413;
+		string					_error_502;
 
 	public:
 								ServerConfig( void );
@@ -27,7 +32,7 @@ class ServerConfig
 
 		string					getHost( void ) const;
 		int						getPort( void ) const;
-		int						getBodySizeLimit( void ) const;
+		long long				getBodySizeLimit( void ) const;
 		string					getName( void ) const;
 		vector< string >		getErrorPages( void ) const;
 		ServerRoutes			getRootRoute( void ) const; // throw( string & )
@@ -38,10 +43,24 @@ class ServerConfig
 
 		void					setHost( string const & );
 		void					setPort( int const & );
-		void					setBodySizeLimit( int const & );
+		void					setBodySizeLimit( long long const & );
 		void					setName( string const & );
 		void					addErrorPage( string const & );
 		void					addRoute( ServerRoutes const & );
+
+
+		string					get400Page( void ) const;
+		void					set400Page( string const & );
+		string					get403Page( void ) const;
+		void					set403Page( string const & );
+		string					get404Page( void ) const;
+		void					set404Page( string const & );
+		string					get405Page( void ) const;
+		void					set405Page( string const & );
+		string					get413Page( void ) const;
+		void					set413Page( string const & );
+		string					get502Page( void ) const;
+		void					set502Page( string const & );
 };
 
 #endif

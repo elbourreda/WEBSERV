@@ -83,6 +83,12 @@ class Config
 		void					parse_config( void ); // throw( string & );
 
 		/**
+		 * @brief 
+		 * 
+		 */
+		void					validate_config( void ); // throw( string & );
+
+		/**
 		 * @brief Get the Servers object
 		 * 
 		 * @return vector< ServerConfig > const & 
@@ -97,6 +103,7 @@ class Config
 		 */
 		ServerConfig const &	getServer( int index ) const; // throw( string & );
 		ServerConfig const &	getServer( string const &, int const & ) const; // throw( string & );
+		ServerConfig const &	getServerName( string const &, int const & ) const; // throw( string & );
 
 		int						getServerCount( void ) const;
 

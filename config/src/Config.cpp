@@ -363,7 +363,59 @@ void					Config::parse_config( void ) // throw( string & )
 				{
 					// int
 					//cout << "Server limit: |" << value << "|" << endl;
+					if ( !isdigit(value[0]) )
+					{
+						Config::line_error("Invalid Syntax. Body size limit should be a positive number.", line, line_number);
+					}
 					server_config.setBodySizeLimit(atoi(value.c_str()));
+				}
+				else if (key == "error_400")
+				{
+					if (!file_exists(value))
+					{
+						Config::line_error("Invalid Syntax. Error page for code 400 should be a valid file path.", line, line_number);
+					}
+					server_config.set400Page(value);
+				}
+				else if (key == "error_403")
+				{
+					if (!file_exists(value))
+					{
+						Config::line_error("Invalid Syntax. Error page for code 403 should be a valid file path.", line, line_number);
+					}
+					server_config.set403Page(value);
+				}
+				else if (key == "error_404")
+				{
+					if (!file_exists(value))
+					{
+						Config::line_error("Invalid Syntax. Error page for code 404 should be a valid file path.", line, line_number);
+					}
+					server_config.set404Page(value);
+				}
+				else if (key == "error_405")
+				{
+					if (!file_exists(value))
+					{
+						Config::line_error("Invalid Syntax. Error page for code 405 should be a valid file path.", line, line_number);
+					}
+					server_config.set405Page(value);
+				}
+				else if (key == "error_413")
+				{
+					if (!file_exists(value))
+					{
+						Config::line_error("Invalid Syntax. Error page for code 413 should be a valid file path.", line, line_number);
+					}
+					server_config.set413Page(value);
+				}
+				else if (key == "error_502")
+				{
+					if (!file_exists(value))
+					{
+						Config::line_error("Invalid Syntax. Error page for code 502 should be a valid file path.", line, line_number);
+					}
+					server_config.set502Page(value);
 				}
 				else
 				{
@@ -399,11 +451,6 @@ void					Config::parse_config( void ) // throw( string & )
 					else
 						throw string(RED + string("") + "Error: Invalid value for dir_listing.\n" + string("") + RESET);
 				}
-				else if (key == "error_404")
-				{
-				//	cout << "Error page for code 404: |" << value << "|" << endl;
-					// server_route.(value);
-				}
 				else if (key == "index")
 				{
 					//cout << "Route index file: |" << value << "|" << endl;
@@ -417,13 +464,14 @@ void					Config::parse_config( void ) // throw( string & )
 				else if (key == "redirection_code")
 				{
 					//cout << "Rredirect with error code: |" << value << "|" << endl;
-					if ( isdigit(value[0]) )
+					if ( !isdigit(value[0]) )
 					{
-						server_route.setRedirectionCode(atoi(value.c_str()));
+						throw(RED + string("") + "Invalid Syntax. Redirection code should be a positive number!\n" + string("") + RESET);
 					}
-					else
+					server_route.setRedirectionCode(atoi(value.c_str()));
+					if ( server_route.getRedirectionCode() != 301 && server_route.getRedirectionCode() != 302 )
 					{
-						throw(RED + string("") + "Invalid Syntax. Redirection code should be a number!\n" + string("") + RESET);
+						throw(RED + string("") + "Invalid Syntax. Redirection code should be either 301 and 302!\n" + string("") + RESET);
 					}
 				}
 				else if (key == "redirection_url")
@@ -439,6 +487,11 @@ void					Config::parse_config( void ) // throw( string & )
 				else if (key == "upload_dir")
 				{
 					//cout << "Upload path: |" << value << "|" << endl;
+					if (!directory_exists(value))
+					{
+						ifs.close();
+						Config::line_error("Invalid directory: '" + value + "'.", line, line_number);
+					}
 					server_route.setUploadDir(value);
 				}
 				else if (key == "root")
@@ -467,6 +520,27 @@ void					Config::parse_config( void ) // throw( string & )
 	}
 }
 
+/*
+	throw error if multiple servers have the same host, port, server_name
+*/
+void validate_config( void ) // throw( string & )
+{
+	vector< ServerConfig > server_configs = Config::getInstance().getServers();
+	// check for duplicate server
+	for (int i = 0; i < server_configs.size(); i++)
+	{
+		for (int j = i + 1; j < server_configs.size(); j++)
+		{
+			if ( server_configs[i].getHost() == server_configs[j].getHost() &&
+				server_configs[i].getPort() == server_configs[j].getPort() &&
+				server_configs[i].getName() == server_configs[j].getName() )
+			{
+				throw string(RED + string("") + "Error: Duplicate server configuration.\n" + string("") + RESET);
+			}
+		}
+	}
+}
+
 vector< ServerConfig > const &	Config::getServers( void ) const
 {
 	return (this->_servers);
@@ -489,6 +563,23 @@ ServerConfig const &	Config::getServer( string const & host, int const & port ) 
 		srvr = Config::getInstance().getServer(i);
 		if (
 			srvr.getHost() == host &&
+			srvr.getPort() == port
+		)
+		{
+			return (Config::getInstance().getServer(i));
+		}
+	}
+	return this->getServerName( host, port );
+}
+
+ServerConfig const &	Config::getServerName( string const & host, int const & port ) const // throw( string & )
+{
+	ServerConfig	srvr;
+	for ( int i = 0; i < Config::getInstance().getServerCount(); i++ )
+	{
+		srvr = Config::getInstance().getServer(i);
+		if (
+			srvr.getName() == host &&
 			srvr.getPort() == port
 		)
 		{

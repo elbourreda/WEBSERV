@@ -76,9 +76,22 @@ long long int calculateSize(std::string filename)
 	return ans;
 }
 
+// does file exists
+bool file_exists(std::string const & name)
+{
+	struct stat buffer;
+	return (stat(name.c_str(), &buffer) == 0) && (S_ISREG(buffer.st_mode));
+}
+
+bool directory_exists(std::string const & name)
+{
+	struct stat buffer;
+	return (stat(name.c_str(), &buffer) == 0) && (S_ISDIR(buffer.st_mode));
+}
+
 std::string preparehref(std::string const & filename, std::string const & req)
 {
-	return ("<a href='" + req + ( req.size()>1?"/":"") + filename + "'>" + filename + "</a>");
+	return ("<a href='" + req + (req.size()>1?"/":"") + filename + "'>" + filename + "</a>");
 }
 
 void generate_dirlist(std::string const & o_file, std::string full_path, std::string const & req)
@@ -120,6 +133,13 @@ std::string getStatusByCode(int sCode)
 {
     std::map<int, std::string> status;
     status[200] = "200 OK";
+	status[201] = "201 Created";
+	status[202] = "202 Accepted";
+	status[204] = "204 No Content";
+	status[206] = "206 Partial Content";
+	status[301] = "301 Moved Permanently";
+	status[302] = "302 Found";
+	status[304] = "304 Not Modified";
     status[400] = "400 Bad Request";
     status[401] = "401 Unauthorized";
     status[403] = "403 Forbidden";
@@ -139,9 +159,6 @@ std::string getStatusByCode(int sCode)
     status[504] = "504 Gateway Timeout";
     status[505] = "505 HTTP Version Not Supported";
     status[508] = "508 Loop Detected";
-    status[301] = "301 Moved Permanently";
-    status[302] = "302 Found";
-    status[304] = "304 Not Modified";
 
     return (status[sCode]);
 }
