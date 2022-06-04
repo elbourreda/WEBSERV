@@ -194,6 +194,11 @@ void		Response::start( void )
 	this->output_file( route );
 
 	this->send_file();
+
+	// cout << "Removing " << concat("workdir/response_", this->timestamp) << endl;
+	remove(concat("workdir/response_", this->timestamp).c_str());
+	// cout << "Removing " << concat("workdir/dirlist_", this->timestamp) << endl;
+	remove(concat("workdir/dirlist_", this->timestamp).c_str());
 }
 
 /*
