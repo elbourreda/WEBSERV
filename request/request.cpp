@@ -25,23 +25,8 @@ Request::Request(std::string req_path, int _fd)
 	this->IsPhpFile = false;
 	this->IsReqBody = 0;
 	this->AutoindexOn = false;
-
-	// // read file in req_path
-	// std::ifstream file(req_path.c_str());
-	// if(!file.good())
-	// 	throw "error open file";
-	// std::string line;
-	// std::cout << "---------starting--------" << std::endl;
-	// while(std::getline(file, line))
-	// {
-	// 	std::cout << line + "\n";
-	// }
-	// std::cout << "----------ending---------" << std::endl;
-	// file.close();
-
-
-	this->indexfile = "index.html"; // replaced
     start_parsing();
+		
 
 }
 
@@ -131,7 +116,10 @@ void Request::getvalue(std::string line)
             getHost_Port(str);
         }
         else
+		{
             this->host = str;
+			this->port = "80";
+		}
 	}
 	else if (str == "Content-Type") 
 		this->Content_type = line.substr(line.find(' ') + 1);
@@ -146,14 +134,14 @@ void Request::getvalue(std::string line)
 
 void Request::getHost_Port(std::string line)
 {
-    std::stringstream   inputfile(line);
+	std::stringstream   inputfile(line);
 	std::string         str;
 
-    std::getline(inputfile, str, ':');
-    this->host = str;
+	std::getline(inputfile, str, ':');
+	this->host = str;
 
-    std::getline(inputfile, str, ':');
-    this->port = str;
+	std::getline(inputfile, str, ':');
+	this->port = str;
 }
 
 void Request::PrepareMsgBody(std::string line)
