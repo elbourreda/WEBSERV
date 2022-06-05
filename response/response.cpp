@@ -85,6 +85,16 @@ void		Response::start( void )
 				if ( stat(index_file.c_str(), &info) == 0 )
 				{
 					this->responseFile = index_file;
+
+					if (this->_req.RequestFile[this->_req.RequestFile.length()-1] != '/')
+						this->_req.RequestFile += '/';
+
+					this->_req.RequestFile += route.getIndexes()[i];
+
+					if ( this->responseFile.size() > 4 &&
+						 this->responseFile.substr(this->responseFile.size() - 4) == ".php" )
+						this->_req.IsPhpFile = true;
+
 					break;
 				}
 			}
@@ -94,13 +104,9 @@ void		Response::start( void )
 				{
 					this->statusCode = 200;
 					this->isAutoindex = true;
-					string output_file_name = concat("workdir/dirlist_", this->timestamp);
+					string output_file_name = concat("/tmp/.dirlist_", this->timestamp);
 					generate_dirlist(output_file_name, route.getRoot() + path, this->_req.RequestFile);
 					this->responseFile = output_file_name;
-
-					if ( this->responseFile.size() > 4 &&
-						 this->responseFile.substr(this->responseFile.size() - 4) == ".php" )
-						this->_req.IsPhpFile = true;
 				}
 				else
 				{
@@ -142,6 +148,16 @@ void		Response::start( void )
 					if ( stat(index_file.c_str(), &info) == 0 )
 					{
 						this->responseFile = index_file;
+
+						if (this->_req.RequestFile[this->_req.RequestFile.length()-1] != '/')
+							this->_req.RequestFile += '/';
+
+						this->_req.RequestFile += route.getIndexes()[i];
+
+						if ( this->responseFile.size() > 4 &&
+							 this->responseFile.substr(this->responseFile.size() - 4) == ".php" )
+							this->_req.IsPhpFile = true;
+
 						break;
 					}
 				}
@@ -152,13 +168,9 @@ void		Response::start( void )
 					{
 						this->statusCode = 200;
 						this->isAutoindex = true;
-						string output_file_name = concat("workdir/dirlist_", this->timestamp);
+						string output_file_name = concat("/tmp/.dirlist_", this->timestamp);
 						generate_dirlist(output_file_name, route.getRoot() + path, this->_req.RequestFile);
 						this->responseFile = output_file_name;
-
-						if ( this->responseFile.size() > 4 &&
-							 this->responseFile.substr(this->responseFile.size() - 4) == ".php" )
-							this->_req.IsPhpFile = true;
 					}
 					else
 					{
@@ -172,12 +184,10 @@ void		Response::start( void )
 	/*	REQUESTED FILE AND AUTOINDEX	*/
 
 	/*	CGI AVAILABILITY	*/
-	if ( this->_req.IsPhpFile && route.getPhpCgi() != "" )
+	if ( this->_req.IsPhpFile && route.getPhpCgi() != "" ) 
 	{
 		// check if php-cgi is a file
-		struct stat info;
-		if ( !(stat(route.getPhpCgi().c_str(), &info) != 0
-			&& info.st_mode & S_IFREG) )
+		if ( !file_exists(route.getPhpCgi()) )
 		{
 			this->statusCode = 502;
 			this->responseFile = server.get502Page();
@@ -209,7 +219,6 @@ void		Response::start( void )
 	if (route.isMethodAllowed(this->_req.method) == false)
 	{
 		this->statusCode = 405;
-		cout << server.get405Page() << endl;
 		this->responseFile = server.get405Page();
 	}
 	/*	METHOD CHECK	*/
@@ -231,10 +240,8 @@ void		Response::start( void )
 
 	this->send_file();
 
-	// cout << "Removing " << concat("workdir/response_", this->timestamp) << endl;
-	remove(concat("workdir/response_", this->timestamp).c_str());
-	// cout << "Removing " << concat("workdir/dirlist_", this->timestamp) << endl;
-	remove(concat("workdir/dirlist_", this->timestamp).c_str());
+	remove(concat("/tmp/.response_", this->timestamp).c_str());
+	remove(concat("/tmp/.dirlist_", this->timestamp).c_str());
 }
 
 /*
@@ -260,7 +267,7 @@ void	Response::output_file( ServerRoutes const & route )
     ofstream   end_file;
 	string     file_name;
 
-	file_name = concat("workdir/response_", this->timestamp);
+	file_name = concat("/tmp/.response_", this->timestamp);
 	end_file.open(file_name.c_str());
 
 	if ( end_file.is_open() )
@@ -270,12 +277,14 @@ void	Response::output_file( ServerRoutes const & route )
 			if ( this->_req.IsPhpFile && route.getPhpCgi() != "" )
 			{
 				// PHP CGI
+				this->_req.RequestFile = this->responseFile;
+
 				end_file << "HTTP/1.1 " << "200 OK" << "\r\n";
-				end_file << "Content-Length: " << calculateSize(this->responseFile) << "\r\n";
 
 				cgi _cgi( this->_req, route.getPhpCgi() );
 				this->responseFile = _cgi.outputfile;
 
+				end_file << "Content-Length: " << GetLengthFileCgi(this->responseFile) << "\r\n";
 				ifstream i_file(this->responseFile, ios::binary);
 				if (i_file)
 				{
@@ -328,7 +337,7 @@ void	Response::send_file( void )
 {
 	string file_name;
 
-	file_name = concat("workdir/response_", this->timestamp);
+	file_name = concat("/tmp/.response_", this->timestamp);
 
 	ifstream myfile(file_name.c_str());
 	if (myfile.is_open())
