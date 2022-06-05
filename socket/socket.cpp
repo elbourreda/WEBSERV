@@ -129,6 +129,52 @@ void _socket::add_conection(int fd_sock)
     max_fd = max(max_fd,accpt);
 }
 
+int		_socket::GetLengthFileCgiDone(std::string outputfile, int n)
+{
+	std::string line;
+	std::ifstream content(outputfile);
+	int len;
+
+	len = 0;
+
+	while (getline (content, line))
+	{
+		if (n == 0)
+		{
+			len += line.size() + 1;
+			if (line == "\r")
+				break;
+		}
+		else
+			len += line.size() + 1;
+	}
+	
+	content.close();
+	return (len);
+}
+
+int 	_socket::isfiledone(std::string outputfile)
+{
+	std::string line;
+	std::ifstream content(outputfile);
+	int i = -2;
+	while (getline (content, line))
+	{
+		if (line == "\r")
+			return i;
+		std::stringstream   inputfile(line);
+		std::string         str;
+		std::getline(inputfile, str, ':');
+		if (str == "Content-Length")
+		{
+			std::getline(inputfile, str, ':');
+			i = std::stoi(str);
+		}
+	}
+	content.close();
+	return (0);
+}
+
 long long int _socket::calculateSizeDone(std::string filename)
 {
 
@@ -142,28 +188,40 @@ long long int _socket::calculateSizeDone(std::string filename)
 	return ans;
 }
 
+void	_socket::ft_req_res(std::string file_name,int fd_sock)
+{
+	Request _request(file_name, fd_sock);
+    _request.printAll();
+	if(FD_ISSET(fd_sock, &struct_write_fd))
+		Response _response(fd_sock, _request);
+	remove(file_name.c_str());
+	ft_clear(fd_sock);
+}
+
 void _socket::ft_accept(int fd_sock)
 {
-    std::string		file_name;	
-	char 			buff[1024];
-    struct timeval  time;
-	int retVal;
+    int 				size;
+    std::string 		file_name;
+    struct timeval    	time;
+	char 				buff[1024];
+	int 				retVal;
+
     gettimeofday(&time, NULL);
     file_name = std::to_string(time.tv_sec) + std::to_string(fd_sock);
 	memset(buff ,0 , 1024);
-	retVal = recv(fd_sock, buff, 1024, 0);
+    retVal = recv(fd_sock, buff, 1024, 0);
 	if(retVal >= 0)
     {
 		int fd_o = open(file_name.c_str(), O_CREAT | O_RDWR |O_APPEND, 0666);
 		write(fd_o, buff, retVal);
-		if (retVal != 1024 || calculateSizeDone(file_name) == 1024)
-		{
-			Request _request(file_name, fd_sock);
-			if(FD_ISSET(fd_sock, &struct_write_fd))
-				Response _response(fd_sock, _request);
-			remove(file_name.c_str());
-			ft_clear(fd_sock);
-		}
+        int _content_lenght = isfiledone(file_name);
+		if (_content_lenght == -2)
+			ft_req_res(file_name, fd_sock);
+        if(_content_lenght > 0 )
+        {
+            if(calculateSizeDone(file_name) >= (_content_lenght + GetLengthFileCgiDone(file_name, 0)))
+				ft_req_res(file_name, fd_sock);
+        }
     }
 }
 

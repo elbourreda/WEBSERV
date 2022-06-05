@@ -52,7 +52,10 @@ class _socket
         void ft_restart();
         void search(int socket);
         int max(int x, int y);
-        long long int calculateSizeDone(std::string filename);
+        int	        GetLengthFileCgiDone(std::string outputfile, int n);
+        long long int   calculateSizeDone(std::string filename);
+        int             isfiledone(std::string outputfile);
+        void	        ft_req_res(std::string file_name, int fd_sock);
         _socket();
         ~_socket();
         
