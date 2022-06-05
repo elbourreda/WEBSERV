@@ -82,7 +82,7 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// secend
 
 #include "cgi.hpp" 
-#define ROOTDIR "/tmp/www" 
+// #define ROOTDIR "/tmp/www" 
 
 cgi::cgi(Request &res, std::string cgi_path)
 {
@@ -98,7 +98,7 @@ void cgi::SetCgiEnv( void )
 	setenv("GATEWAY_INTERFACE", "CGI/1.1",1);
 	setenv("SERVER_PROTOCOL", "HTTP/1.1",1);
 	setenv("REDIRECT_STATUS", "200",      1);
-	setenv("SCRIPT_FILENAME", (ROOTDIR+(*this->req).RequestFile).c_str() , 1);
+	setenv("SCRIPT_FILENAME", ((*this->req).RequestFile).c_str() , 1);
 	setenv("REQUEST_METHOD", (*this->req).method.c_str(), 1);
 
 	if ((*this->req).method == "GET")
