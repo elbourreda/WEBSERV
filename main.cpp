@@ -14,6 +14,7 @@ int		main( int ac, char **av )
 		conf_file = "./config/webserv.conf";
 	try
 	{
+		signal(SIGPIPE, SIG_IGN);
 		Config::getInstance().set_config_file(conf_file);
 		Config::getInstance().check_config_file();
 		Config::getInstance().parse_config();

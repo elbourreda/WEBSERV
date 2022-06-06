@@ -37,12 +37,9 @@ void _socket::bind_socket()
     std::memset(&serverAddr, 0, sizeof(serverAddr));
 	serverAddr.sin_family = PF_INET;
 	serverAddr.sin_port = htons(port);
-    // if(host == "ANY_IP")
-    //     serverAddr.sin_addr.s_addr =  htonl(INADDR_ANY);
-    // else
-        serverAddr.sin_addr.s_addr = inet_addr(host.c_str());
+    serverAddr.sin_addr.s_addr = inet_addr(host.c_str());
 	if(bind(fd, (struct sockaddr *)&serverAddr, sizeof(serverAddr)) == -1)
-        std::cout<< "error fcntl";
+        throw  "error fcntl";
 }
 
 void _socket::listen_socket()
@@ -179,9 +176,8 @@ long long int _socket::calculateSizeDone(std::string filename)
 {
 
 	FILE* fp = fopen(filename.c_str(), "r");
-	if (fp == NULL) {
+	if (fp == NULL) 
 		return 0;
-	}
 	fseek(fp, 0L, SEEK_END);
 	long int ans = ftell(fp);
 	fclose(fp);
@@ -216,13 +212,22 @@ void _socket::ft_accept(int fd_sock)
 		write(fd_o, buff, retVal);
         int _content_lenght = isfiledone(file_name);
 		if (_content_lenght == -2)
+		{
 			ft_req_res(file_name, fd_sock);
-        if(_content_lenght > 0 )
+			close(fd_o);
+		}
+			
+        if (_content_lenght > 0 )
         {
-            if(calculateSizeDone(file_name) >= (_content_lenght + GetLengthFileCgiDone(file_name, 0)))
+			if(calculateSizeDone(file_name) >= (_content_lenght + GetLengthFileCgiDone(file_name, 0)))
+			{
 				ft_req_res(file_name, fd_sock);
-        }
+				close(fd_o);
+			}	
+		} 
     }
+	else
+		throw "error read";
 }
 
 void _socket::start_socket()
