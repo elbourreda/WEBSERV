@@ -1,7 +1,26 @@
 #include "response.hpp"
 
-Response::Response( void )
-{}
+std::string		path_it(std::string const & filename, std::string const & routePath)
+{
+	size_t			pos = filename.find(routePath);
+	std::string		path = routePath;
+	if (path[path.size() - 1] != '/')
+		path += "/";
+
+	if ( pos != std::string::npos )
+	{
+		std::string newFilename = filename.substr(0, pos);
+		newFilename += filename.substr(pos + routePath.length());
+		if ( newFilename.length() > 0 )
+			return newFilename;
+		else
+			return "/";
+	}
+	else
+		return filename;
+}
+
+Response::Response( void ) {}
 
 Response::Response( int & fd, Request & request )
 {
@@ -11,6 +30,103 @@ Response::Response( int & fd, Request & request )
 	this->statusCode = 200;
 	this->timestamp = time(NULL);
 	this->start();
+}
+
+ServerRoutes	Response::which_route( ServerConfig server, string const & path )
+{
+	ServerRoutes	route;
+	vector<string>	paths_splitted;
+
+	// path does not contain a filename
+	paths_splitted = s_split(path, '/');
+
+	if ( paths_splitted.back().find('.') == string::npos )
+	{
+		route = server.getRoute(path);
+	}
+	// path contains a filename
+	else
+	{
+		// in case the path was /file.html
+		if ( paths_splitted.size() == 1 )
+			route = server.getRoute("/");
+		// multiple subdirectories
+		else
+			// remove last / that points to file
+			route = server.getRoute(path.substr(0, path.rfind('/')));
+	}
+	return ( route );
+}
+
+void	Response::which_file( ServerConfig const & server, ServerRoutes const & route, string const & path )
+{
+	// CONTAINS DOT NOT
+	string	myRoot = ( route.getUploadDir() == "" ? route.getRoot() : route.getUploadDir() );
+	string	requested_file = myRoot + path;
+
+	if ( !file_exists(requested_file) && !directory_exists(requested_file) )
+	{
+		cout << endl;
+		cout << "NOT " << route.getRoute() << endl;
+		cout << "NOT > " << route.getRoot() << endl;
+		cout << "NOT > " << myRoot << endl;
+		cout << "NOT FOUND HERE 1 " << requested_file << endl;
+		this->statusCode = 404;
+		this->responseFile = server.get404Page();
+	}
+	else if ( hasAccess(requested_file) == -1 )
+	{
+		this->statusCode = 403;
+		this->responseFile = server.get403Page();
+	}
+	else
+	{
+		// FILE
+		if ( file_exists(requested_file) )
+		{
+			this->statusCode = 200;
+			this->responseFile = requested_file;
+		}
+		// DIRECTORY
+		else
+		{
+			// AUTOINDEXING
+			for ( int i = 0; i < route.getIndexes().size(); i++ )
+			{
+				string index_file = myRoot + path + "/" + route.getIndexes()[i];
+				if ( file_exists( index_file ) )
+				{
+					this->statusCode = 200;
+					this->responseFile = index_file;
+					this->_req.RequestFile = index_file;
+
+					if ( this->responseFile.size() > 4 &&
+						this->responseFile.substr(this->responseFile.size() - 4) == ".php" )
+						this->_req.IsPhpFile = true;
+
+					break;
+				}
+			}
+			// IF NO INDEX FOUND AND DIRLIST, THEN LIST DIRECTORIES
+			if ( this->responseFile == "" )
+			{
+				if ( route.getDirListing() )
+				{
+					this->statusCode = 200;
+					string output_file_name = concat("/tmp/.dirlist_", this->timestamp);
+					output_file_name += ".html";
+					generate_dirlist(output_file_name, myRoot + path, this->_req.RequestFile);
+					this->responseFile = output_file_name;
+				}
+			}
+			// IF NOT 403
+			if ( this->responseFile == "" && route.getDirListing() == false )
+			{
+				this->statusCode = 403;
+				this->responseFile = server.get403Page();
+			}
+		}
+	}
 }
 
 /*
@@ -42,148 +158,28 @@ void		Response::start( void )
 	int				port = atoi(this->_req.port.c_str());
 	ServerConfig	server;
 	ServerRoutes	route;
-	vector<string>	paths_splitted;
 
 	server = Config::getInstance().getServer(host, port);
 
 	/*	WHICH ROUTE	*/
-	// path does not contain a filename
-	paths_splitted = s_split(path, '/');
-	
-	if ( paths_splitted.back().find('.') == string::npos )
-		route = server.getRoute(path);
-	// path contains a filename
-	else
-	{
-		// in case the path was /file.html
-		if ( paths_splitted.size() == 1 )
-			route = server.getRoute("/");
-		// multiple subdirectories
-		else
-			// remove last / that points to file
-			route = server.getRoute(path.substr(0, path.rfind('/')));
-	}
+	route = this->which_route( server, path );
 	/*	WHICH ROUTE	*/
 
-
-	/*	REQUESTED FILE AND AUTOINDEX	*/
-	// CONTAINS DOT NOT
-	struct stat info;
-	if ( paths_splitted.back().find('.') == string::npos )
+	if ( route.getUploadDir() != "" )
 	{
-		string requested_dir = route.getRoot() + path;
-		if ( stat(requested_dir.c_str(), &info) != 0 )
-		{
-			this->statusCode = 404;
-			this->responseFile = server.get404Page();
-		}
-		else if( info.st_mode & S_IFDIR )
-		{
-			for ( int i = 0; i < route.getIndexes().size(); i++ )
-			{
-				string index_file = route.getRoot() + path + "/" + route.getIndexes()[i];
-				if ( stat(index_file.c_str(), &info) == 0 )
-				{
-					this->responseFile = index_file;
-
-					if (this->_req.RequestFile[this->_req.RequestFile.length()-1] != '/')
-						this->_req.RequestFile += '/';
-
-					this->_req.RequestFile += route.getIndexes()[i];
-
-					if ( this->responseFile.size() > 4 &&
-						 this->responseFile.substr(this->responseFile.size() - 4) == ".php" )
-						this->_req.IsPhpFile = true;
-
-					break;
-				}
-			}
-			if ( this->responseFile == "" )
-			{
-				if ( route.getDirListing() )
-				{
-					this->statusCode = 200;
-					this->isAutoindex = true;
-					string output_file_name = concat("/tmp/.dirlist_", this->timestamp);
-					generate_dirlist(output_file_name, route.getRoot() + path, this->_req.RequestFile);
-					this->responseFile = output_file_name;
-				}
-				else
-				{
-					this->statusCode = 403;
-					this->responseFile = server.get403Page();
-				}
-			}
-		}
-		else
-		{
-			this->statusCode = 404;
-			this->responseFile = server.get404Page();
-		}
+		path = this->_req.RequestFile = path_it(this->_req.RequestFile, route.getRoute());
 	}
-
-	// CONTAINS DOT
 	else
 	{
-		string requested_file = route.getRoot() + path;
-
-		if ( stat(requested_file.c_str(), &info) != 0)
-		{
-			this->statusCode = 404;
-			this->responseFile = server.get404Page();
-		}
-		else
-		{
-			// FILE
-			if ( info.st_mode & S_IFREG )
-			{
-				this->responseFile = requested_file;
-			}
-			// FOLDER
-			else if( info.st_mode & S_IFDIR )
-			{
-				for ( int i = 0; i < route.getIndexes().size(); i++ )
-				{
-					string index_file = route.getRoot() + path + "/" + route.getIndexes()[i];
-					if ( stat(index_file.c_str(), &info) == 0 )
-					{
-						this->responseFile = index_file;
-
-						if (this->_req.RequestFile[this->_req.RequestFile.length()-1] != '/')
-							this->_req.RequestFile += '/';
-
-						this->_req.RequestFile += route.getIndexes()[i];
-
-						if ( this->responseFile.size() > 4 &&
-							 this->responseFile.substr(this->responseFile.size() - 4) == ".php" )
-							this->_req.IsPhpFile = true;
-
-						break;
-					}
-				}
-				if ( this->responseFile == "" )
-				{
-					// no index file found
-					if ( route.getDirListing() )
-					{
-						this->statusCode = 200;
-						this->isAutoindex = true;
-						string output_file_name = concat("/tmp/.dirlist_", this->timestamp);
-						generate_dirlist(output_file_name, route.getRoot() + path, this->_req.RequestFile);
-						this->responseFile = output_file_name;
-					}
-					else
-					{
-						this->statusCode = 403;
-						this->responseFile = server.get403Page();
-					}
-				}
-			}
-		}
+		path = this->_req.RequestFile = path_it(this->_req.RequestFile, route.getUploadDir());
 	}
+
+
+	/*	REQUESTED FILE AND AUTOINDEX	*/
+	which_file( server, route, path );
 	/*	REQUESTED FILE AND AUTOINDEX	*/
 
-	/*	CGI AVAILABILITY	*/
+	/*	502 CGI AVAILABILITY	*/
 	if ( this->_req.IsPhpFile && route.getPhpCgi() != "" ) 
 	{
 		// check if php-cgi is a file
@@ -193,19 +189,73 @@ void		Response::start( void )
 			this->responseFile = server.get502Page();
 		}
 	}
-	/*	CGI AVAILABILITY	*/
+	/*	502 CGI AVAILABILITY	*/
 
-	/*		*/
+	/*	413 BODY LIMIT	*/
 	if ( this->_req.Content_length > server.getBodySizeLimit() )
 	{
 		this->statusCode = 413;
 		this->responseFile = server.get413Page();
 	}
-	/*		*/
+	/*	413 BODY LIMIT	*/
 
-	/*	REDIRECTION	*/
+	/*	405 METHOD CHECK	*/
+	if (route.isMethodAllowed(this->_req.method) == false)
+	{
+		this->statusCode = 405;
+		this->responseFile = server.get405Page();
+	}
+	/*	405 METHOD CHECK	*/
+
+	/*	201	*/
+	if ( route.getUploadDir() != "" && this->_req.method == "POST" )
+	{
+		cout << "STATUS CODE " << this->statusCode << endl;
+		if ( this->statusCode == 404 )
+		{
+			// rename uploaded file to requested file
+			string up_path = dirname((char *)(route.getUploadDir() + "/" + this->_req.RequestFile).c_str());
+			cout << "DIRNAME UPLOAD PATH " << up_path << endl;
+
+			if ( directory_exists(up_path) )
+			{
+				ifstream	i_file(this->_req.body_content, ios::binary);
+				cout << "I FILE " << this->_req.body_content << endl;
+				ofstream	end_file(route.getUploadDir() + "/" + this->_req.RequestFile, ios::binary);
+				cout << "END FILE " << route.getUploadDir() + "/" + this->_req.RequestFile << endl;
+				if (end_file && i_file)
+				{
+					end_file << i_file.rdbuf();
+				}
+				i_file.close();
+				end_file.close();
+
+				this->statusCode = 201;
+				this->responseFile = "";
+			}
+
+			else
+			{
+				this->statusCode = 404;
+				this->responseFile = server.get404Page();
+			}
+		}
+		else
+		{
+			if ( !this->_req.IsPhpFile )
+			{
+				this->statusCode = 406;
+				this->responseFile = server.get406Page();
+			}
+		}
+		cout << "STATUS CODE " << this->statusCode << endl;
+	}
+	/*	201	*/
+
+	/*	30X REDIRECTION	*/
 	if ( (route.getRedirectionCode() == 301 || route.getRedirectionCode() == 302)
-		&& route.getRedirectionUrl() != "" )
+		&& route.getRedirectionUrl() != ""
+		&& this->statusCode == 200 )
 	{
 		string header;
 		header = "HTTP/1.1 " + getStatusByCode(route.getRedirectionCode()) + "\r\n";
@@ -213,15 +263,7 @@ void		Response::start( void )
 		header = "Location: " + route.getRedirectionUrl() + "\r\n";
 		write(this->_fd_out, header.c_str(), header.size());
 	}
-	/*	REDIRECTION	*/
-
-	/*	METHOD CHECK	*/
-	if (route.isMethodAllowed(this->_req.method) == false)
-	{
-		this->statusCode = 405;
-		this->responseFile = server.get405Page();
-	}
-	/*	METHOD CHECK	*/
+	/*	30X REDIRECTION	*/
 
 	/*	400	*/
 	/* loop through method check if char is lowercase */
@@ -236,30 +278,27 @@ void		Response::start( void )
 	}
 	/*	400	*/
 
+	/*	DELETE	*/
+	if ( this->_req.method == "DELETE" && this->statusCode != 405 )
+	{
+		this->statusCode = deleteMethod(this->_req.RequestFile, route.getRoot());
+		if ( this->statusCode == 204 )
+			this->responseFile = server.get204Page();
+		else if ( this->statusCode == 403 )
+			this->responseFile = server.get403Page();
+		else if ( this->statusCode == 404 )
+			this->responseFile = server.get404Page();
+		else if ( this->statusCode == 500 )
+			this->responseFile = server.get500Page();
+	}
+	/*	DELETE	*/
+
 	this->output_file( route );
 
 	this->send_file();
 
 	remove(concat("/tmp/.response_", this->timestamp).c_str());
-	remove(concat("/tmp/.dirlist_", this->timestamp).c_str());
-}
-
-/*
-	Check content length with body limit
-*/
-
-int GetLengthFileCgi(std::string outputfile)
-{
-	std::string line;
-	std::ifstream content(outputfile);
-	int len;
-
-	len = 0;
-	while (getline (content, line) && line != "\r")
-		;
-	while (getline (content, line))
-		len += line.size() + 1;
-	return (len);
+	remove((concat("/tmp/.dirlist_", this->timestamp) + ".html").c_str());
 }
 
 void	Response::output_file( ServerRoutes const & route )
@@ -272,19 +311,19 @@ void	Response::output_file( ServerRoutes const & route )
 
 	if ( end_file.is_open() )
 	{
-		if (this->statusCode == 200)
+		if (this->statusCode >= 200 && this->statusCode <= 204)
 		{
-			if ( this->_req.IsPhpFile && route.getPhpCgi() != "" )
+			if ( this->_req.IsPhpFile && route.getPhpCgi() != "" && this->statusCode != 201 && this->statusCode != 204 )
 			{
 				// PHP CGI
 				this->_req.RequestFile = this->responseFile;
 
-				end_file << "HTTP/1.1 " << "200 OK" << "\r\n";
+				end_file << "HTTP/1.1 " << getStatusByCode(200) << "\r\n";
 
 				cgi _cgi( this->_req, route.getPhpCgi() );
 				this->responseFile = _cgi.outputfile;
 
-				end_file << "Content-Length: " << GetLengthFileCgi(this->responseFile) << "\r\n";
+				end_file << "Content-Length: " << getLengthFileCgi(this->responseFile) << "\r\n";
 				ifstream i_file(this->responseFile, ios::binary);
 				if (i_file)
 				{
@@ -298,7 +337,7 @@ void	Response::output_file( ServerRoutes const & route )
 			else
 			{
 				// HTML
-				end_file << "HTTP/1.1 " << "200 OK" << "\r\n";
+				end_file << "HTTP/1.1 " << getStatusByCode(this->statusCode) << "\r\n";
 				end_file << "Content-Length: " << calculateSize(this->responseFile) << "\r\n";
 				end_file << "Content-Type: " << getContentType(this->responseFile) << "\r\n";
 				end_file << "\r\n";
@@ -312,7 +351,7 @@ void	Response::output_file( ServerRoutes const & route )
 			}
 		}
 
-		else if (this->statusCode != 301 || this->statusCode != 302)
+		else if (this->statusCode != 301 && this->statusCode != 302)
 		{
 			// HTML
 			end_file << "HTTP/1.1 " << getStatusByCode(this->statusCode) << "\r\n";
@@ -350,6 +389,70 @@ void	Response::send_file( void )
 		}
 		myfile.close();
 	}
+}
+
+bool	detectIndexRoute(string const & name)
+{
+	for (int i = 0; i < name.size(); i++)
+		if (name[i] != '/')
+			return (false);
+	return (true);
+}
+
+// 204, 403, 404, 500
+int		Response::deleteMethod(string const & path, string const & rootdir)
+{
+	std::string fullpath = (rootdir + path);
+
+	if (detectIndexRoute(path))
+	{
+		// status code here allways 403 forbiden *
+		return 403;
+	}
+
+	else
+	{
+		// not found
+		if (!directory_exists(fullpath) && !file_exists(fullpath))
+			return 404;
+
+		// permission denied
+		else if (access(fullpath.c_str(), W_OK) == -1)
+			return 403;
+
+		// else
+		else
+		{
+			// directory
+			if (directory_exists(fullpath.c_str()))
+			{
+				return 403;
+			}
+
+			// file
+			else
+			{
+				if (remove(fullpath.c_str()) == 0)
+					return 204;
+				else
+					return 500;
+			}
+		}
+	}
+}
+
+int		Response::getLengthFileCgi(std::string outputfile)
+{
+	std::string line;
+	std::ifstream content(outputfile);
+	int len;
+
+	len = 0;
+	while (getline (content, line) && line != "\r")
+		;
+	while (getline (content, line))
+		len += line.size() + 1;
+	return (len);
 }
 
 std::string Response::getContentType(std::string & filename)

@@ -7,11 +7,11 @@
 // # include <fcntl.h>
 // # include <unistd.h>
 // # include <stdlib.h>
-// # include <vector>
 // # include <string> 
 // # include <fstream>
 // # include <sstream>
 # include <cstring>
+# include <libgen.h>
 # include "../config/src/Config.hpp"
 # include "../config/utils.h"
 # include "../request/request.hpp"
@@ -36,9 +36,10 @@ class Response
 	private:
 		Request			_req;
 		int				_fd_out;
+		long long		timestamp;
 						Response ( void );
 		void			start ( void );
-		long long		timestamp;
+		void			send_file ( void );
 		void			output_file ( ServerRoutes const & );
 
 	public:
@@ -47,13 +48,11 @@ class Response
 		std::string		responseFile;
 
 						Response ( int &, Request & );
-		void			send_file ( void );
-		// void			GetStatusCode();
-		// int				AutondexOn();
-		// void			SuccessResponse();
-		// std::string		getRepnsFirstline(int statuscode);
+		ServerRoutes	which_route ( ServerConfig, string const & );
+		void			which_file( ServerConfig const &, ServerRoutes const &, string const & );
 		std::string		getContentType ( std::string & );
-		// std::string		getRepnsContLength(int Length);
+		int				deleteMethod( std::string const & path, std::string const & rootdir );
+		int				getLengthFileCgi(std::string outputfile);
 };
 
 #endif // !REQUEST_HPP
