@@ -547,12 +547,14 @@ void					Config::parse_config( void ) // throw( string & )
 
 		line_number++;
 	}
+	Config::getInstance().validate_config();
 }
 
 /*
 	throw error if multiple servers have the same host, port, server_name
+	call config
 */
-void validate_config( void ) // throw( string & )
+void Config::validate_config( void ) // throw( string & )
 {
 	vector< ServerConfig > server_configs = Config::getInstance().getServers();
 	// check for duplicate server
@@ -567,6 +569,10 @@ void validate_config( void ) // throw( string & )
 				throw string(RED + string("") + "Error: Duplicate server configuration.\n" + string("") + RESET);
 			}
 		}
+	}
+	if ( server_configs.size() == 0 )
+	{
+		throw string(RED + string("") + "Error: No server configuration found.\n" + string("") + RESET);
 	}
 }
 
