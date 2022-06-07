@@ -379,7 +379,7 @@ void					Config::parse_config( void ) // throw( string & )
 				}
 				else if (key == "error_400")
 				{
-					if (!file_exists(value))
+					if (!file_exists(value) && hasAccess(value) == 0)
 					{
 						Config::line_error("Invalid Syntax. Error page for code 400 should be a valid file path.", line, line_number);
 					}
@@ -387,7 +387,7 @@ void					Config::parse_config( void ) // throw( string & )
 				}
 				else if (key == "error_403")
 				{
-					if (!file_exists(value))
+					if (!file_exists(value) && hasAccess(value) == 0)
 					{
 						Config::line_error("Invalid Syntax. Error page for code 403 should be a valid file path.", line, line_number);
 					}
@@ -395,7 +395,7 @@ void					Config::parse_config( void ) // throw( string & )
 				}
 				else if (key == "error_404")
 				{
-					if (!file_exists(value))
+					if (!file_exists(value) && hasAccess(value) == 0)
 					{
 						Config::line_error("Invalid Syntax. Error page for code 404 should be a valid file path.", line, line_number);
 					}
@@ -403,7 +403,7 @@ void					Config::parse_config( void ) // throw( string & )
 				}
 				else if (key == "error_405")
 				{
-					if (!file_exists(value))
+					if (!file_exists(value) && hasAccess(value) == 0)
 					{
 						Config::line_error("Invalid Syntax. Error page for code 405 should be a valid file path.", line, line_number);
 					}
@@ -419,7 +419,7 @@ void					Config::parse_config( void ) // throw( string & )
 				}
 				else if (key == "error_413")
 				{
-					if (!file_exists(value))
+					if (!file_exists(value) && hasAccess(value) == 0)
 					{
 						Config::line_error("Invalid Syntax. Error page for code 413 should be a valid file path.", line, line_number);
 					}
@@ -435,7 +435,7 @@ void					Config::parse_config( void ) // throw( string & )
 				}
 				else if (key == "error_502")
 				{
-					if (!file_exists(value))
+					if (!file_exists(value) && hasAccess(value) == 0)
 					{
 						Config::line_error("Invalid Syntax. Error page for code 502 should be a valid file path.", line, line_number);
 					}
@@ -511,7 +511,7 @@ void					Config::parse_config( void ) // throw( string & )
 				else if (key == "upload_dir")
 				{
 					//cout << "Upload path: |" << value << "|" << endl;
-					if (!directory_exists(value))
+					if (!directory_exists(value) && hasAccess(value) == 0)
 					{
 						ifs.close();
 						Config::line_error("Invalid directory: '" + value + "'.", line, line_number);
