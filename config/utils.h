@@ -11,6 +11,8 @@
 # include <dirent.h>
 // stat
 # include <sys/stat.h>
+// access
+# include <unistd.h>
 // setw
 # include <iomanip>
 
@@ -22,8 +24,9 @@ std::string					w_trim(std::string const & s);
 std::vector<std::string>	s_split(std::string const & s, char c);
 std::string					concat(std::string const & s, int i);
 long long int				calculateSize(std::string filename);
-bool                        file_exists(std::string const & name);
-bool                        directory_exists(std::string const & name);
+bool						file_exists(std::string const & name);
+bool						directory_exists(std::string const & name);
+int							hasAccess(std::string const & filename);
 void						generate_dirlist(std::string const &, std::string, std::string const &);
 std::string					searchByExtension(std::string const & extention);
 std::string					getStatusByCode(int sCode);

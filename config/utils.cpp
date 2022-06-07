@@ -76,7 +76,6 @@ long long int calculateSize(std::string filename)
 	return ans;
 }
 
-// does file exists
 bool file_exists(std::string const & name)
 {
 	struct stat buffer;
@@ -89,6 +88,17 @@ bool directory_exists(std::string const & name)
 	return (stat(name.c_str(), &buffer) == 0) && (S_ISDIR(buffer.st_mode));
 }
 
+/**
+ * @brief 
+ * 
+ * @param filename 
+ * @return int : returns 0 if success, -1 if error 
+ */
+int hasAccess(std::string const & filename)
+{
+	return access(filename.c_str(), R_OK);
+}
+
 std::string preparehref(std::string const & filename, std::string const & req)
 {
 	return ("<a href='" + req + (req.size()>1?"/":"") + filename + "'>" + filename + "</a>");
@@ -99,6 +109,8 @@ void generate_dirlist(std::string const & o_file, std::string full_path, std::st
 	DIR				*dir;
 	struct dirent	*ent;
 	std::ofstream	myfile;
+	std::cout << "generate_dirlist" << std::endl;
+	std::cout << "o_file " << o_file << ", " << "full_path : " << full_path << ", req : " << req << std::endl;
 
 	myfile.open(o_file);
 	myfile << "<html><head><title>Index of " + full_path + " </title></head><body>" << std::endl;
@@ -111,13 +123,19 @@ void generate_dirlist(std::string const & o_file, std::string full_path, std::st
 				continue;
 
 			std::string		filename(ent->d_name);
+			std::string		tmp;
 			struct stat		sb;
 
 			if (full_path[full_path.size()-1] != '/')
 				full_path += "/";
-			full_path += ent->d_name;
+			tmp = full_path;
+			tmp += ent->d_name;
 
-			stat(full_path.c_str(), &sb);
+			std::cout << "FULLPATH " << full_path << std::endl;
+			std::cout << "FILENAME " << filename << std::endl;
+			std::cout << std::endl;
+
+			stat(tmp.c_str(), &sb);
 			myfile
 				<< preparehref(filename, req)
 				<< std::setw(60 - (preparehref(filename, req).length() / 2))
