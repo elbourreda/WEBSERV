@@ -102,8 +102,8 @@ class Config
 		 * @return ServerConfig const & 
 		 */
 		ServerConfig const &	getServer( int index ) const; // throw( string & );
-		ServerConfig const &	getServer( string const &, int const & ) const; // throw( string & );
-		ServerConfig const &	getServerName( string const &, int const & ) const; // throw( string & );
+		ServerConfig const &	getServer( string const &, int const & ) const;
+		ServerConfig const &	getServerName( string const &, int const & ) const;
 
 		int						getServerCount( void ) const;
 

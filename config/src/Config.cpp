@@ -555,7 +555,7 @@ ServerConfig const &	Config::getServer( int i ) const // throw( string & )
 	throw string(RED + string("") + "Error: Server index out of range.\n" + string("") + RESET);
 }
 
-ServerConfig const &	Config::getServer( string const & host, int const & port ) const // throw( string & )
+ServerConfig const &	Config::getServer( string const & host, int const & port ) const
 {
 	ServerConfig	srvr;
 	for ( int i = 0; i < Config::getInstance().getServerCount(); i++ )
@@ -572,7 +572,7 @@ ServerConfig const &	Config::getServer( string const & host, int const & port ) 
 	return this->getServerName( host, port );
 }
 
-ServerConfig const &	Config::getServerName( string const & host, int const & port ) const // throw( string & )
+ServerConfig const &	Config::getServerName( string const & host, int const & port ) const
 {
 	ServerConfig	srvr;
 	for ( int i = 0; i < Config::getInstance().getServerCount(); i++ )
@@ -586,7 +586,7 @@ ServerConfig const &	Config::getServerName( string const & host, int const & por
 			return (Config::getInstance().getServer(i));
 		}
 	}
-	throw string(RED + string("") + "Error: Server was not found.\n" + string("") + RESET);
+	return this->getServer( 0 );
 }
 
 int						Config::getServerCount( void ) const
