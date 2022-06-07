@@ -17,11 +17,14 @@ class ServerConfig
 		string					_name;
 		int						_port;
 		vector< ServerRoutes >	_routes;
+		string					_error_204;
 		string					_error_400;
 		string					_error_403;
 		string					_error_404;
 		string					_error_405;
+		string					_error_406;
 		string					_error_413;
+		string					_error_500;
 		string					_error_502;
 
 	public:
@@ -49,16 +52,22 @@ class ServerConfig
 		void					addRoute( ServerRoutes const & );
 
 
+		string					get204Page( void ) const;
+		void					set204Page( string const & );
 		string					get400Page( void ) const;
 		void					set400Page( string const & );
 		string					get403Page( void ) const;
 		void					set403Page( string const & );
 		string					get404Page( void ) const;
 		void					set404Page( string const & );
+		string					get406Page( void ) const;
+		void					set406Page( string const & );
 		string					get405Page( void ) const;
 		void					set405Page( string const & );
 		string					get413Page( void ) const;
 		void					set413Page( string const & );
+		string					get500Page( void ) const;
+		void					set500Page( string const & );
 		string					get502Page( void ) const;
 		void					set502Page( string const & );
 };
