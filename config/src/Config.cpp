@@ -520,6 +520,11 @@ void					Config::parse_config( void ) // throw( string & )
 				}
 				else if (key == "root")
 				{
+					if (!directory_exists(value) || hasAccess(value) == -1)
+					{
+						ifs.close();
+						Config::line_error("Invalid directory: '" + value + "'.", line, line_number);
+					}
 					if ( value.size() > 1 && value[-1] == '/' )
 						value.substr(0, value.size() - 1);
 					// cout << "Route root: |" << value << "|" << endl;
