@@ -369,6 +369,14 @@ void					Config::parse_config( void ) // throw( string & )
 					}
 					server_config.setBodySizeLimit(atoi(value.c_str()));
 				}
+				else if (key == "error_204")
+				{
+					if (!file_exists(value) && hasAccess(value) == 0)
+					{
+						Config::line_error("Invalid Syntax. Error page for code 204 should be a valid file path.", line, line_number);
+					}
+					server_config.set204Page(value);
+				}
 				else if (key == "error_400")
 				{
 					if (!file_exists(value))
@@ -401,6 +409,14 @@ void					Config::parse_config( void ) // throw( string & )
 					}
 					server_config.set405Page(value);
 				}
+				else if (key == "error_406")
+				{
+					if (!file_exists(value) && hasAccess(value) == 0)
+					{
+						Config::line_error("Invalid Syntax. Error page for code 406 should be a valid file path.", line, line_number);
+					}
+					server_config.set406Page(value);
+				}
 				else if (key == "error_413")
 				{
 					if (!file_exists(value))
@@ -408,6 +424,14 @@ void					Config::parse_config( void ) // throw( string & )
 						Config::line_error("Invalid Syntax. Error page for code 413 should be a valid file path.", line, line_number);
 					}
 					server_config.set413Page(value);
+				}
+				else if (key == "error_500")
+				{
+					if (!file_exists(value) && hasAccess(value) == 0)
+					{
+						Config::line_error("Invalid Syntax. Error page for code 500 should be a valid file path.", line, line_number);
+					}
+					server_config.set500Page(value);
 				}
 				else if (key == "error_502")
 				{
