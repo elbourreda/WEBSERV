@@ -9,7 +9,7 @@ ServerRoutes::ServerRoutes( void )
 	this->_dir_list = false;
 	this->_phpcgi = "";
 	this->_upload = true;
-	this->_upload_dir = "/tmp/upload";
+	this->_upload_dir = "";
 }
 
 ServerRoutes::ServerRoutes( ServerRoutes const & src )
