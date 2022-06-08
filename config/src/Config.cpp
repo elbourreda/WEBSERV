@@ -5,11 +5,6 @@
 						Config::Config( void )
 {}
 
-// 						Config::Config( Config const & src )
-// {
-// 	*this = src;
-// }
-
 Config				&	Config::operator=( Config const & )
 {
 	return *this;
@@ -171,28 +166,6 @@ void					Config::check_config_file( void ) // throw( string & )
 	ifs.close();
 }
 
-void	print_route(ServerRoutes sr)
-{
-	cout << "route        -> " << sr.getRoute() << endl;
-	cout << "root         -> " << sr.getRoot() << endl;
-	for (int i = 0; i < sr.getAllMethods().size(); i++)
-	{
-	cout << "method       -> " << sr.getAllMethods()[i] << endl;
-	}
-	for (int i = 0; i < sr.getIndexes().size(); i++)
-	{
-	cout << "index        -> " << sr.getIndexes()[i] << endl;
-	}
-	cout << "dirlist      -> " << sr.getDirListing() << endl;
-	cout << "phpcgi       -> " << sr.getPhpCgi() << endl;
-	cout << "redir code   -> " << sr.getRedirectionCode() << endl;
-	cout << "redir url    -> " << sr.getRedirectionUrl() << endl;
-	cout << "upload       -> " << sr.getUpload() << endl;
-	cout << "upload dir   -> " << sr.getUploadDir() << endl;
-	cout << endl;
-	cout << endl;
-}
-
 void					Config::parse_config( void ) // throw( string & )
 {
 	ifstream		ifs;
@@ -336,7 +309,6 @@ void					Config::parse_config( void ) // throw( string & )
 				// get server host
 				if (key == "host")
 				{
-					//cout << "Server host: |" << value << "|" << endl;
 					server_config.setHost(value);
 				}
 				// get server port
@@ -351,18 +323,15 @@ void					Config::parse_config( void ) // throw( string & )
 						Config::line_error("Invalid port number. Port number must be between 1 and 65535.", line, line_number);
 					}
 					server_config.setPort(port);
-					//cout << "Server port: |" << value << "|" << endl;
 				}
 				// get server name
 				else if (key == "server_name")
 				{
-					//cout << "Server name: |" << value << "|" << endl;
 					server_config.setName(value);
 				}
 				else if (key == "limit_body_size")
 				{
 					// int
-					//cout << "Server limit: |" << value << "|" << endl;
 					if ( !isdigit(value[0]) )
 					{
 						Config::line_error("Invalid Syntax. Body size limit should be a positive number.", line, line_number);
@@ -371,7 +340,7 @@ void					Config::parse_config( void ) // throw( string & )
 				}
 				else if (key == "error_204")
 				{
-					if (!file_exists(value) && hasAccess(value) == 0)
+					if (!file_exists(value) || hasAccess(value) == -1)
 					{
 						Config::line_error("Invalid Syntax. Error page for code 204 should be a valid file path.", line, line_number);
 					}
@@ -379,7 +348,7 @@ void					Config::parse_config( void ) // throw( string & )
 				}
 				else if (key == "error_400")
 				{
-					if (!file_exists(value) && hasAccess(value) == 0)
+					if (!file_exists(value) || hasAccess(value) == -1)
 					{
 						Config::line_error("Invalid Syntax. Error page for code 400 should be a valid file path.", line, line_number);
 					}
@@ -387,7 +356,7 @@ void					Config::parse_config( void ) // throw( string & )
 				}
 				else if (key == "error_403")
 				{
-					if (!file_exists(value) && hasAccess(value) == 0)
+					if (!file_exists(value) || hasAccess(value) == -1)
 					{
 						Config::line_error("Invalid Syntax. Error page for code 403 should be a valid file path.", line, line_number);
 					}
@@ -395,7 +364,7 @@ void					Config::parse_config( void ) // throw( string & )
 				}
 				else if (key == "error_404")
 				{
-					if (!file_exists(value) && hasAccess(value) == 0)
+					if (!file_exists(value) || hasAccess(value) == -1)
 					{
 						Config::line_error("Invalid Syntax. Error page for code 404 should be a valid file path.", line, line_number);
 					}
@@ -403,7 +372,7 @@ void					Config::parse_config( void ) // throw( string & )
 				}
 				else if (key == "error_405")
 				{
-					if (!file_exists(value) && hasAccess(value) == 0)
+					if (!file_exists(value) || hasAccess(value) == -1)
 					{
 						Config::line_error("Invalid Syntax. Error page for code 405 should be a valid file path.", line, line_number);
 					}
@@ -411,7 +380,7 @@ void					Config::parse_config( void ) // throw( string & )
 				}
 				else if (key == "error_406")
 				{
-					if (!file_exists(value) && hasAccess(value) == 0)
+					if (!file_exists(value) || hasAccess(value) == -1)
 					{
 						Config::line_error("Invalid Syntax. Error page for code 406 should be a valid file path.", line, line_number);
 					}
@@ -419,7 +388,7 @@ void					Config::parse_config( void ) // throw( string & )
 				}
 				else if (key == "error_413")
 				{
-					if (!file_exists(value) && hasAccess(value) == 0)
+					if (!file_exists(value) || hasAccess(value) == -1)
 					{
 						Config::line_error("Invalid Syntax. Error page for code 413 should be a valid file path.", line, line_number);
 					}
@@ -427,7 +396,7 @@ void					Config::parse_config( void ) // throw( string & )
 				}
 				else if (key == "error_500")
 				{
-					if (!file_exists(value) && hasAccess(value) == 0)
+					if (!file_exists(value) || hasAccess(value) == -1)
 					{
 						Config::line_error("Invalid Syntax. Error page for code 500 should be a valid file path.", line, line_number);
 					}
@@ -435,7 +404,7 @@ void					Config::parse_config( void ) // throw( string & )
 				}
 				else if (key == "error_502")
 				{
-					if (!file_exists(value) && hasAccess(value) == 0)
+					if (!file_exists(value) || hasAccess(value) == -1)
 					{
 						Config::line_error("Invalid Syntax. Error page for code 502 should be a valid file path.", line, line_number);
 					}
@@ -452,7 +421,6 @@ void					Config::parse_config( void ) // throw( string & )
 			{
 				if (key == "allow")
 				{
-					//cout << "Route allowed method: |" << value << "|" << endl;
 					if ( value != "GET" && value != "POST" && value != "DELETE" )
 					{
 						ifs.close();
@@ -462,12 +430,10 @@ void					Config::parse_config( void ) // throw( string & )
 				}
 				else if (key == "php_cgi")
 				{
-					//cout << "Route cgi path: |" << value << "|" << endl;
 					server_route.setPhpCgi(value);
 				}
 				else if (key == "dir_listing")
 				{
-					//cout << "Route listing: |" << value << "|" << endl;
 					if (value == "on")
 						server_route.setDirListing(true);
 					else if (value == "off")
@@ -477,7 +443,6 @@ void					Config::parse_config( void ) // throw( string & )
 				}
 				else if (key == "index")
 				{
-					//cout << "Route index file: |" << value << "|" << endl;
 					if ( value.find('.') == string::npos )
 					{
 						ifs.close();
@@ -487,7 +452,6 @@ void					Config::parse_config( void ) // throw( string & )
 				}
 				else if (key == "redirection_code")
 				{
-					//cout << "Rredirect with error code: |" << value << "|" << endl;
 					if ( !isdigit(value[0]) )
 					{
 						throw(RED + string("") + "Invalid Syntax. Redirection code should be a positive number!\n" + string("") + RESET);
@@ -500,18 +464,11 @@ void					Config::parse_config( void ) // throw( string & )
 				}
 				else if (key == "redirection_url")
 				{
-					//cout << "URL to redirect to: |" << value << "|" << endl;
 					server_route.setRedirectionUrl(value);
-				}
-				else if (key == "upload")
-				{
-				//	cout << "Is upload enabled: |" << value << "|" << endl;
-					server_route.setUpload(value);
 				}
 				else if (key == "upload_dir")
 				{
-					//cout << "Upload path: |" << value << "|" << endl;
-					if (!directory_exists(value) && hasAccess(value) == 0)
+					if (!directory_exists(value) || hasAccess(value) == -1)
 					{
 						ifs.close();
 						Config::line_error("Invalid directory: '" + value + "'.", line, line_number);
@@ -527,12 +484,10 @@ void					Config::parse_config( void ) // throw( string & )
 					}
 					if ( value.size() > 1 && value[-1] == '/' )
 						value.substr(0, value.size() - 1);
-					// cout << "Route root: |" << value << "|" << endl;
 					server_route.setRoot(value);
 				}
 				else if (key == "route")
 				{
-					//cout << "Route path: |" << value << "|" << endl;
 					server_route.setRoute(value);
 				}
 				else
@@ -550,10 +505,6 @@ void					Config::parse_config( void ) // throw( string & )
 	Config::getInstance().validate_config();
 }
 
-/*
-	throw error if multiple servers have the same host, port, server_name
-	call config
-*/
 void Config::validate_config( void ) // throw( string & )
 {
 	vector< ServerConfig > server_configs = Config::getInstance().getServers();

@@ -28,12 +28,6 @@ class Config
 		Config( void );
 
 	public:
-		/**
-		 * @brief Construct a new Config object
-		 * 
-		 * @param src Config const & - The Config object to copy
-		 */
-		// Config( Config const & src ); //
 
 		/**
 		 * @brief 
