@@ -17,7 +17,6 @@ class ServerRoutes
 		string			_redirection_url;
 		string			_root;
 		string			_route;
-		bool			_upload;
 		string			_upload_dir;
 
 	public:
@@ -36,7 +35,6 @@ class ServerRoutes
 		vector<string>	getAllMethods( void ) const;
 		int				getMethodsCount( void ) const;
 		bool			isMethodAllowed( string const & ) const;
-		bool			getUpload( void ) const;
 		string			getUploadDir( void ) const;
 
 		void			setRedirectionCode( int const & );
@@ -46,8 +44,7 @@ class ServerRoutes
 		void			setDirListing( bool );
 		void			addIndex( string const & );
 		void			setPhpCgi( string const & );
-		bool			addMethod( string const & ); //
-		void			setUpload( string const & );
+		bool			addMethod( string const & );
 		void			setUploadDir( string const & );
 };
 

@@ -8,7 +8,6 @@ ServerRoutes::ServerRoutes( void )
 	this->_root = "/tmp/www";
 	this->_dir_list = false;
 	this->_phpcgi = "";
-	this->_upload = true;
 	this->_upload_dir = "";
 }
 
@@ -27,7 +26,6 @@ ServerRoutes & ServerRoutes::operator=( ServerRoutes const & src )
 	this->_indexes = src._indexes;
 	this->_methods = src._methods;
 	this->_phpcgi = src._phpcgi;
-	this->_upload = src._upload;
 	this->_upload_dir = src._upload_dir;
 
 	return *this;
@@ -81,11 +79,6 @@ int ServerRoutes::getMethodsCount( void ) const
 	return this->_methods.size();
 }
 
-bool ServerRoutes::getUpload( void ) const
-{
-	return this->_upload;
-}
-
 string ServerRoutes::getUploadDir( void ) const
 {
 	return this->_upload_dir;
@@ -137,27 +130,12 @@ void ServerRoutes::setPhpCgi( string const & cgi )
 
 bool ServerRoutes::addMethod( string const & method )
 {
-	// is 'method' a valid HTTP method?
-	// how to check? (case-insensitive)
-	// if (  )
 	if ( !this->isMethodAllowed( method ) )
 	{
 		this->_methods.push_back(method);
 		return true;
 	}
 	return false;
-}
-
-void ServerRoutes::setUpload( string const & upload )
-{
-	if ( upload == "on" )
-	{
-		this->_upload = true;
-	}
-	else
-	{
-		this->_upload = false;
-	}
 }
 
 void ServerRoutes::setUploadDir( string const & upload )
