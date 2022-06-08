@@ -29,7 +29,7 @@ PARSESRCS	=	config/utils.cpp \
 				config/src/ServerConfig.cpp \
 				config/src/ServerRoutes.cpp \
 				response/response.cpp
-PARSEHSRCS	=	config/utils.hpp \
+PARSEHSRCS	=	config/utils.h \
 				config/src/Config.hpp \
 				config/src/ServerConfig.hpp \
 				config/src/ServerRoutes.hpp \
@@ -37,7 +37,7 @@ PARSEHSRCS	=	config/utils.hpp \
 
 all : $(NAME)
 
-$(NAME)		:	$(SRC) $(PARSESRC) $(PARSEHSRC) $(REQSRCS) $(REQHSRCS)
+$(NAME)		:	$(SRC) $(PARSESRCS) $(PARSEHSRCS) $(REQSRCS) $(REQHSRCS)
 	@$(CC) $(CFLAGS) $(PARSESRCS) $(REQSRCS) $(SRC) -o $(NAME)
 	
 clean		:
