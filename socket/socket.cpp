@@ -248,21 +248,30 @@ void _socket::start_socket()
 	FD_ZERO(&struct_write_fd);
 	FD_SET(0, &struct_fd);
     max_fd = 0;
+	std::vector<int> used_port;
+	std::vector<int>::iterator used_port_it;
+
     for (int i = 0; i < Config::getInstance().getServerCount(); i++)
     {
         host = Config::getInstance().getServer(i).getHost();
         port = Config::getInstance().getServer(i).getPort();
-        try
-        {
-            this->creat_socket(); 
-            this->bind_socket();
-            this->listen_socket();
-            this->store_fd();
-        }
-        catch(const std::exception &e)
-        {
-            std::cerr << e.what() << '\n';
-        }
+		used_port_it = std::find(used_port.begin(), used_port.end(), port);
+
+		if ( used_port_it == used_port.end() )
+		{
+			try
+			{
+				this->creat_socket(); 
+				this->bind_socket();
+				this->listen_socket();
+				this->store_fd();
+			}
+			catch(const std::exception &e)
+			{
+				std::cerr << e.what() << '\n';
+			}
+			used_port.push_back(port);
+		}
     }
     this->ft_wait();
 }
