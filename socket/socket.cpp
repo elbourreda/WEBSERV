@@ -171,15 +171,25 @@ int 	_socket::isfiledone(std::string outputfile)
 	content.close();
 	return (0);
 }
+int sizeOfFileNew(std::string f)
+{
+	ifstream in_file(f, ios::binary);
+	in_file.seekg(0, ios::end);
+	int file_size = in_file.tellg();
+	in_file.close();
+	return(file_size);
+}
+
 
 long long int _socket::calculateSizeDone(std::string filename)
 {
-
+	long int ans;
 	FILE* fp = fopen(filename.c_str(), "r");
+
 	if (fp == NULL) 
 		return 0;
 	fseek(fp, 0L, SEEK_END);
-	long int ans = ftell(fp);
+	ans = ftell(fp);
 	fclose(fp);
 	return ans;
 }
@@ -201,33 +211,35 @@ void _socket::ft_accept(int fd_sock)
     struct timeval    	time;
 	char 				buff[1024];
 	int 				retVal;
-
-    gettimeofday(&time, NULL);
-    file_name = std::to_string(time.tv_sec) + std::to_string(fd_sock);
+	
+    file_name = "new_" + std::to_string(fd_sock);
 	memset(buff ,0 , 1024);
     retVal = recv(fd_sock, buff, 1024, 0);
 	if(retVal >= 0)
     {
 		int fd_o = open(file_name.c_str(), O_CREAT | O_RDWR |O_APPEND, 0666);
 		write(fd_o, buff, retVal);
+		close(fd_o);
+		int a = sizeOfFileNew(file_name);
+		int b =  GetLengthFileCgiDone(file_name, 0);
         int _content_lenght = isfiledone(file_name);
 		if (_content_lenght == -2)
-		{
 			ft_req_res(file_name, fd_sock);
-			close(fd_o);
-		}
 			
         if (_content_lenght > 0 )
         {
-			if(calculateSizeDone(file_name) >= (_content_lenght + GetLengthFileCgiDone(file_name, 0)))
-			{
+			if(a >= (_content_lenght + b))
 				ft_req_res(file_name, fd_sock);
-				close(fd_o);
-			}	
 		} 
+		if(retVal == 0)
+		{
+			remove(file_name.c_str());
+			ft_clear(fd_sock);
+		}
     }
 	else
 		throw "error read";
+
 }
 
 void _socket::start_socket()

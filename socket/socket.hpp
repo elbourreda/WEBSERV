@@ -26,6 +26,7 @@ class ServerConfig;
 class _socket
 {
     private: 
+	
         int port;
         int fd;
         int max_fd;
