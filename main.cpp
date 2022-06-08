@@ -4,25 +4,33 @@
 
 int		main( int ac, char **av )
 {
-	string		conf_file;
+	std::string		conf_file;
 
-	if (ac > 2)
-		return 0;
-	else if (ac == 2)
+	if (ac == 2)
+	{
 		conf_file = av[1];
-	else
-		conf_file = "./config/webserv.conf";
-	try
-	{
-		signal(SIGPIPE, SIG_IGN);
-		Config::getInstance().set_config_file(conf_file);
-		Config::getInstance().check_config_file();
-		Config::getInstance().parse_config();
-		_socket socket;
+
+		try
+		{
+			signal(SIGPIPE, SIG_IGN);
+			Config::getInstance().set_config_file(conf_file);
+			Config::getInstance().check_config_file();
+			Config::getInstance().parse_config();
+			_socket socket;
+		}
+		catch (std::string & e)
+		{
+			std::cout << e;
+		}
+		catch (const char * e)
+		{
+			std::cout << e;
+		}
 	}
-	catch (string & e)
+
+	else
 	{
-		cout << e;
+		std::cout << "Usage: ./server [config_file]" << std::endl;
 	}
 
 	return (0);
