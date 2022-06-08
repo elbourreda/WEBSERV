@@ -39,17 +39,17 @@ int ServerRoutes::getRedirectionCode( void ) const
 	return this->_redirection_code;
 }
 
-string ServerRoutes::getRedirectionUrl( void ) const
+std::string ServerRoutes::getRedirectionUrl( void ) const
 {
 	return this->_redirection_url;
 }
 
-string ServerRoutes::getRoute( void ) const
+std::string ServerRoutes::getRoute( void ) const
 {
 	return this->_route;
 }
 
-string ServerRoutes::getRoot( void ) const
+std::string ServerRoutes::getRoot( void ) const
 {
 	return this->_root;
 }
@@ -59,17 +59,17 @@ bool ServerRoutes::getDirListing( void ) const
 	return this->_dir_list;
 }
 
-vector<string> ServerRoutes::getIndexes( void ) const
+std::vector<std::string> ServerRoutes::getIndexes( void ) const
 {
 	return this->_indexes;
 }
 
-string ServerRoutes::getPhpCgi( void ) const
+std::string ServerRoutes::getPhpCgi( void ) const
 {
 	return this->_phpcgi;
 }
 
-vector<string> ServerRoutes::getAllMethods( void ) const
+std::vector<std::string> ServerRoutes::getAllMethods( void ) const
 {
 	return this->_methods;
 }
@@ -79,12 +79,12 @@ int ServerRoutes::getMethodsCount( void ) const
 	return this->_methods.size();
 }
 
-string ServerRoutes::getUploadDir( void ) const
+std::string ServerRoutes::getUploadDir( void ) const
 {
 	return this->_upload_dir;
 }
 
-bool ServerRoutes::isMethodAllowed( string const & method ) const
+bool ServerRoutes::isMethodAllowed( std::string const & method ) const
 {
 	return (
 		find(this->_methods.begin(), this->_methods.end(), method)
@@ -98,17 +98,17 @@ void ServerRoutes::setRedirectionCode( int const & redirection )
 	this->_redirection_code = redirection;
 }
 
-void ServerRoutes::setRedirectionUrl( string const & redirection )
+void ServerRoutes::setRedirectionUrl( std::string const & redirection )
 {
 	this->_redirection_url = redirection;
 }
 
-void ServerRoutes::setRoute( string const & route )
+void ServerRoutes::setRoute( std::string const & route )
 {
 	this->_route = route;
 }
 
-void ServerRoutes::setRoot( string const & root )
+void ServerRoutes::setRoot( std::string const & root )
 {
 	this->_root = root;
 }
@@ -118,17 +118,17 @@ void ServerRoutes::setDirListing( bool dir_list )
 	this->_dir_list = dir_list;
 }
 
-void ServerRoutes::addIndex( string const & index )
+void ServerRoutes::addIndex( std::string const & index )
 {
 	this->_indexes.push_back(index);
 }
 
-void ServerRoutes::setPhpCgi( string const & cgi )
+void ServerRoutes::setPhpCgi( std::string const & cgi )
 {
 	this->_phpcgi = cgi;
 }
 
-bool ServerRoutes::addMethod( string const & method )
+bool ServerRoutes::addMethod( std::string const & method )
 {
 	if ( !this->isMethodAllowed( method ) )
 	{
@@ -138,7 +138,7 @@ bool ServerRoutes::addMethod( string const & method )
 	return false;
 }
 
-void ServerRoutes::setUploadDir( string const & upload )
+void ServerRoutes::setUploadDir( std::string const & upload )
 {
 	this->_upload_dir = upload;
 }

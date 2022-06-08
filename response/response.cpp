@@ -32,15 +32,15 @@ Response::Response( int & fd, Request & request )
 	this->start();
 }
 
-ServerRoutes	Response::which_route( ServerConfig server, string const & path )
+ServerRoutes	Response::which_route( ServerConfig server, std::string const & path )
 {
 	ServerRoutes	route;
-	vector<string>	paths_splitted;
+	std::vector<std::string>	paths_splitted;
 
 	// path does not contain a filename
 	paths_splitted = s_split(path, '/');
 
-	if ( paths_splitted.back().find('.') == string::npos )
+	if ( paths_splitted.back().find('.') == std::string::npos )
 	{
 		route = server.getRoute(path);
 	}
@@ -58,12 +58,11 @@ ServerRoutes	Response::which_route( ServerConfig server, string const & path )
 	return ( route );
 }
 
-void	Response::which_file( ServerConfig const & server, ServerRoutes const & route, string const & path, string const & o_path )
+void	Response::which_file( ServerConfig const & server, ServerRoutes const & route, std::string const & path, std::string const & o_path )
 {
-	// CONTAINS DOT NOT
-	string	myRoot = ( route.getUploadDir() == "" ? route.getRoot() : route.getUploadDir() );
+	std::string	myRoot = ( route.getUploadDir() == "" ? route.getRoot() : route.getUploadDir() );
 
-	string	requested_file = myRoot;
+	std::string	requested_file = myRoot;
 	if (requested_file[requested_file.length() - 1] != '/')
 		requested_file += "/";
 	requested_file += path;
@@ -92,7 +91,7 @@ void	Response::which_file( ServerConfig const & server, ServerRoutes const & rou
 			// AUTOINDEXING
 			for ( int i = 0; i < route.getIndexes().size(); i++ )
 			{
-				string index_file = myRoot + path + "/" + route.getIndexes()[i];
+				std::string index_file = myRoot + path + "/" + route.getIndexes()[i];
 				if ( file_exists( index_file ) )
 				{
 					this->statusCode = 200;
@@ -112,7 +111,7 @@ void	Response::which_file( ServerConfig const & server, ServerRoutes const & rou
 				if ( route.getDirListing() )
 				{
 					this->statusCode = 200;
-					string output_file_name = concat("/tmp/.dirlist_", this->timestamp);
+					std::string output_file_name = concat("/tmp/.dirlist_", this->timestamp);
 					output_file_name += ".html";
 					generate_dirlist(output_file_name, myRoot + path, o_path);
 					this->responseFile = output_file_name;
@@ -128,32 +127,10 @@ void	Response::which_file( ServerConfig const & server, ServerRoutes const & rou
 	}
 }
 
-/*
-	400 Bad Request
-	401 Unauthorized						U
-	402 Payment Required					U
-	403 Forbidden
-	404 Not Found							X
-	405 Method Not Allowed					X
-	413 Request Entity Too Large
-	415 Unsupported Media Type
-
-	500 Internal Server Error
-	501 Not Implemented
-	505 HTTP Version Not Supported
-	503 Service Unavailable
-
-	200 OK
-	201 Created (upload was successful)
-	204 No Content (used for DELETE requests)
-
-	301
-	302
-*/
 void		Response::start( void )
 {
-	string			host = this->_req.host;
-	string			original_path = this->_req.RequestFile, path = this->_req.RequestFile;
+	std::string			host = this->_req.host;
+	std::string			original_path = this->_req.RequestFile, path = this->_req.RequestFile;
 	int				port = atoi(this->_req.port.c_str());
 	ServerConfig	server;
 	ServerRoutes	route;
@@ -212,12 +189,12 @@ void		Response::start( void )
 		if ( this->statusCode == 404 )
 		{
 			// rename uploaded file to requested file
-			string up_path = dirname((char *)(route.getUploadDir() + "/" + this->_req.RequestFile).c_str());
+			std::string up_path = dirname((char *)(route.getUploadDir() + "/" + this->_req.RequestFile).c_str());
 
 			if ( directory_exists(up_path) )
 			{
-				ifstream	i_file(this->_req.body_content, ios::binary);
-				ofstream	end_file(route.getUploadDir() + "/" + this->_req.RequestFile, ios::binary);
+				std::ifstream	i_file(this->_req.body_content, std::ios::binary);
+				std::ofstream	end_file(route.getUploadDir() + "/" + this->_req.RequestFile, std::ios::binary);
 				if (end_file && i_file)
 				{
 					end_file << i_file.rdbuf();
@@ -252,7 +229,7 @@ void		Response::start( void )
 		&& route.getRedirectionUrl() != ""
 		&& this->statusCode == 200 )
 	{
-		string header;
+		std::string header;
 		header = "HTTP/1.1 " + getStatusByCode(route.getRedirectionCode()) + "\r\n";
 		write(this->_fd_out, header.c_str(), header.size());
 		header = "Location: " + route.getRedirectionUrl() + "\r\n";
@@ -298,8 +275,8 @@ void		Response::start( void )
 
 void	Response::output_file( ServerRoutes const & route )
 {
-    ofstream   end_file;
-	string     file_name;
+    std::ofstream   end_file;
+	std::string     file_name;
 
 	file_name = concat("/tmp/.response_", this->timestamp);
 	end_file.open(file_name.c_str());
@@ -319,7 +296,7 @@ void	Response::output_file( ServerRoutes const & route )
 				this->responseFile = _cgi.outputfile;
 
 				end_file << "Content-Length: " << getLengthFileCgi(this->responseFile) << "\r\n";
-				ifstream i_file(this->responseFile, ios::binary);
+				std::ifstream i_file(this->responseFile, std::ios::binary);
 				if (i_file)
 				{
 					end_file << i_file.rdbuf();
@@ -337,7 +314,7 @@ void	Response::output_file( ServerRoutes const & route )
 				end_file << "Content-Type: " << getContentType(this->responseFile) << "\r\n";
 				end_file << "\r\n";
 
-				ifstream i_file(this->responseFile, ios::binary);
+				std::ifstream i_file(this->responseFile, std::ios::binary);
 				if (i_file)
 				{
 					end_file << i_file.rdbuf();
@@ -354,7 +331,7 @@ void	Response::output_file( ServerRoutes const & route )
 			end_file << "Content-Type: " << getContentType(this->responseFile) << "\r\n";
 			end_file << "\r\n";
 
-			ifstream i_file(this->responseFile, ios::binary);
+			std::ifstream i_file(this->responseFile, std::ios::binary);
 			if (i_file)
 			{
 				end_file << i_file.rdbuf();
@@ -369,14 +346,14 @@ void	Response::output_file( ServerRoutes const & route )
 // write response file to client
 void	Response::send_file( void )
 {
-	string file_name;
+	std::string file_name;
 
 	file_name = concat("/tmp/.response_", this->timestamp);
 
-	ifstream myfile(file_name.c_str());
+	std::ifstream myfile(file_name.c_str());
 	if (myfile.is_open())
 	{
-		string line;
+		std::string line;
 		while ( getline(myfile, line) )
 		{
 			write(this->_fd_out, line.c_str(), line.size());
@@ -386,7 +363,7 @@ void	Response::send_file( void )
 	}
 }
 
-bool	detectIndexRoute(string const & name)
+bool	detectIndexRoute(std::string const & name)
 {
 	for (int i = 0; i < name.size(); i++)
 		if (name[i] != '/')
@@ -395,7 +372,7 @@ bool	detectIndexRoute(string const & name)
 }
 
 // 204, 403, 404, 500
-int		Response::deleteMethod(string const & path, string const & rootdir)
+int		Response::deleteMethod(std::string const & path, std::string const & rootdir)
 {
 	std::string fullpath = rootdir;
 	if (fullpath[fullpath.size() - 1] != '/')

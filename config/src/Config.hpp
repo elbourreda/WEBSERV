@@ -13,13 +13,11 @@
 # include "ServerConfig.hpp"
 # include "../utils.h"
 
-using namespace std;
-
 class Config
 {
 	private:
-		string					_file;
-		vector< ServerConfig >	_servers;
+		std::string					_file;
+		std::vector< ServerConfig >	_servers;
 		/**
 		 * @brief Construct a new Config object
 		 * 
@@ -46,9 +44,9 @@ class Config
 		/**
 		 * @brief Get the File object
 		 * 
-		 * @return string const & 
+		 * @return std::string const & 
 		 */
-		string const &			getFile( void ) const;
+		std::string const &		getFile( void ) const;
 
 		/**
 		 * @brief Get the Instance object
@@ -60,34 +58,34 @@ class Config
 		/**
 		 * @brief Set the config file object
 		 * 
-		 * @param file string const & - path to the config file
+		 * @param file std::string const & - path to the config file
 		 */
-		void					set_config_file( string const & file );
+		void					set_config_file( std::string const & file );
 
 		/**
 		 * @brief 
 		 * 
 		 */
-		void					check_config_file( void ); // throw( string & );
+		void					check_config_file( void ); // throw( std::string & );
 
 		/**
 		 * @brief Parse the config file object
 		 * 
 		 */
-		void					parse_config( void ); // throw( string & );
+		void					parse_config( void ); // throw( std::string & );
 
 		/**
 		 * @brief 
 		 * 
 		 */
-		void					validate_config( void ); // throw( string & );
+		void					validate_config( void ); // throw( std::string & );
 
 		/**
 		 * @brief Get the Servers object
 		 * 
 		 * @return vector< ServerConfig > const & 
 		 */
-		vector< ServerConfig > const &	getServers( void ) const;
+		std::vector< ServerConfig > const &	getServers( void ) const;
 
 		/**
 		 * @brief Get the Server object
@@ -95,9 +93,9 @@ class Config
 		 * @param index int - index of the server
 		 * @return ServerConfig const & 
 		 */
-		ServerConfig const &	getServer( int index ) const; // throw( string & );
-		ServerConfig const &	getServer( string const &, int const & ) const;
-		ServerConfig const &	getServerName( string const &, int const & ) const;
+		ServerConfig const &	getServer( int index ) const; // throw( std::string & );
+		ServerConfig const &	getServer( std::string const &, int const & ) const;
+		ServerConfig const &	getServerName( std::string const &, int const & ) const;
 
 		int						getServerCount( void ) const;
 
@@ -108,7 +106,7 @@ class Config
 		 */
 		void					addServer( ServerConfig const );
 
-		void					line_error(string const &, string const &, int const) const; // throw( string & );
+		void					line_error(std::string const &, std::string const &, int const) const; // throw( std::string & );
 
 };
 

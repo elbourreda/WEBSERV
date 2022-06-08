@@ -11,11 +11,6 @@ bool existfile(std::string &f)
 Request::Request(){
 }
 
-// Request::~Request()
-// {
-// 	remove(this->PathOfReq.c_str());
-// }
-
 Request::Request(std::string req_path, int _fd)
 {
 	this->fd = _fd;

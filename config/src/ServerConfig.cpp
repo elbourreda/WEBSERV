@@ -6,7 +6,7 @@ ServerConfig::ServerConfig( void )
 	this->_port = -1;
 	this->_body_size_limit = 1024 * 1024000;
 	this->_name = "";
-	this->_routes = vector< ServerRoutes >();
+	this->_routes = std::vector< ServerRoutes >();
 	this->_error_204 = "./pages/204.html";
 	this->_error_400 = "./pages/400.html";
 	this->_error_403 = "./pages/403.html";
@@ -46,7 +46,7 @@ ServerConfig & ServerConfig::operator=( ServerConfig const & src )
 ServerConfig::~ServerConfig( void )
 {}
 
-string ServerConfig::getHost( void ) const
+std::string ServerConfig::getHost( void ) const
 {
 	return this->_host;
 }
@@ -61,12 +61,12 @@ long long ServerConfig::getBodySizeLimit( void ) const
 	return this->_body_size_limit;
 }
 
-string ServerConfig::getName( void ) const
+std::string ServerConfig::getName( void ) const
 {
 	return this->_name;
 }
 
-ServerRoutes		ServerConfig::getRootRoute( void ) const // throw( string & )
+ServerRoutes		ServerConfig::getRootRoute( void ) const // throw( std::string & )
 {
 	for (int i = 0; i < this->getRouteCount(); i++)
 	{
@@ -75,19 +75,19 @@ ServerRoutes		ServerConfig::getRootRoute( void ) const // throw( string & )
 			return (this->_routes[i]);
 		}
 	}
-	throw string(RED + string("") + "Error: No Route with root directory '/' exists.\n" + string("") + RESET);
+	throw std::string(RED + std::string("") + "Error: No Route with root directory '/' exists.\n" + std::string("") + RESET);
 }
 
-ServerRoutes		ServerConfig::getRoute( int const & index ) const // throw( string & )
+ServerRoutes		ServerConfig::getRoute( int const & index ) const // throw( std::string & )
 {
 	if ( index >= 0 && index < this->getRouteCount() )
 	{
 		return (this->_routes[index]);
 	}
-	throw string(RED + string("") + "Error: Server index out of range.\n" + string("") + RESET);
+	throw std::string(RED + std::string("") + "Error: Server index out of range.\n" + std::string("") + RESET);
 }
 
-ServerRoutes		ServerConfig::getRoute( string path ) const // throw( string & )
+ServerRoutes		ServerConfig::getRoute( std::string path ) const // throw( std::string & )
 {
 	while ( count(path.begin(), path.end(), '/') > 0 )
 	{
@@ -103,7 +103,7 @@ ServerRoutes		ServerConfig::getRoute( string path ) const // throw( string & )
 	return this->getRootRoute();
 }
 
-vector< ServerRoutes > ServerConfig::getRoutes( void ) const
+std::vector< ServerRoutes > ServerConfig::getRoutes( void ) const
 {
 	return this->_routes;
 }
@@ -113,7 +113,7 @@ int ServerConfig::getRouteCount( void ) const
 	return this->_routes.size();
 }
 
-void ServerConfig::setHost( string const & host )
+void ServerConfig::setHost( std::string const & host )
 {
 	this->_host = host;
 }
@@ -128,7 +128,7 @@ void ServerConfig::setBodySizeLimit( long long const & b_s_l )
 	this->_body_size_limit = b_s_l * 1024000;
 }
 
-void ServerConfig::setName( string const & name )
+void ServerConfig::setName( std::string const & name )
 {
 	this->_name = name;
 }
@@ -138,91 +138,91 @@ void ServerConfig::addRoute( ServerRoutes const & route )
 	this->_routes.push_back( route );
 }
 
-string ServerConfig::get204Page( void ) const
+std::string ServerConfig::get204Page( void ) const
 {
 	return this->_error_204;
 }
 
-void ServerConfig::set204Page( string const & page )
+void ServerConfig::set204Page( std::string const & page )
 {
 	this->_error_204 = page;
 }
-string ServerConfig::get400Page( void ) const
+std::string ServerConfig::get400Page( void ) const
 {
 	return this->_error_400;
 }
 
-void ServerConfig::set400Page( string const & page )
+void ServerConfig::set400Page( std::string const & page )
 {
 	this->_error_400 = page;
 }
 
-string ServerConfig::get403Page( void ) const
+std::string ServerConfig::get403Page( void ) const
 {
 	return this->_error_403;
 }
 
-void ServerConfig::set403Page( string const & page )
+void ServerConfig::set403Page( std::string const & page )
 {
 	this->_error_403 = page;
 }
 
-string ServerConfig::get404Page( void ) const
+std::string ServerConfig::get404Page( void ) const
 {
 	return this->_error_404;
 }
 
-void ServerConfig::set404Page( string const & page )
+void ServerConfig::set404Page( std::string const & page )
 {
 	this->_error_404 = page;
 }
 
-string ServerConfig::get405Page( void ) const
+std::string ServerConfig::get405Page( void ) const
 {
 	return this->_error_405;
 }
 
-void ServerConfig::set405Page( string const & page )
+void ServerConfig::set405Page( std::string const & page )
 {
 	this->_error_405 = page;
 }
 
-string ServerConfig::get406Page( void ) const
+std::string ServerConfig::get406Page( void ) const
 {
 	return this->_error_406;
 }
 
-void ServerConfig::set406Page( string const & page )
+void ServerConfig::set406Page( std::string const & page )
 {
 	this->_error_406 = page;
 }
 
-string ServerConfig::get413Page( void ) const
+std::string ServerConfig::get413Page( void ) const
 {
 	return this->_error_413;
 }
 
-void ServerConfig::set413Page( string const & page )
+void ServerConfig::set413Page( std::string const & page )
 {
 	this->_error_413 = page;
 }
 
-string ServerConfig::get500Page( void ) const
+std::string ServerConfig::get500Page( void ) const
 {
 	return this->_error_500;
 }
 
-void ServerConfig::set500Page( string const & page )
+void ServerConfig::set500Page( std::string const & page )
 {
 	this->_error_500 = page;
 }
 
-string ServerConfig::get502Page( void ) const
+std::string ServerConfig::get502Page( void ) const
 {
 	return this->_error_502;
 }
 
-void ServerConfig::set502Page( string const & page )
+void ServerConfig::set502Page( std::string const & page )
 {
 	this->_error_502 = page;
 }

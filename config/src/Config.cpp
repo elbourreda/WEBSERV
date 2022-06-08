@@ -29,26 +29,26 @@ void					Config::set_config_file( std::string const & file )
 	Config::getInstance()._file = file;
 }
 
-void					Config::check_config_file( void ) // throw( string & )
+void					Config::check_config_file( void ) // throw( std::string & )
 {
-	ifstream	ifs;
+	std::ifstream	ifs;
 	int			count_s;
 	int			count_e;
 	int			count_sc;
 	int			line_number = 0;
-	string		line;
-	stack<int>	braces;
+	std::string	line;
+	std::stack<int>	braces;
 	int			err = 0;
 
 	if ( Config::getInstance().getFile().size() == 0 )
 	{
-		throw string(RED + string("") + "Error: No config file specified.\n" + string("") + RESET);
+		throw std::string(RED + std::string("") + "Error: No config file specified.\n" + std::string("") + RESET);
 	}
 
 	ifs.open(Config::getInstance().getFile());
 	if (!ifs.is_open())
 	{
-		throw string(RED + string("") + "Error: Cannot open '" + Config::getInstance().getFile() + "'!\n" + string("") + RESET);
+		throw std::string(RED + std::string("") + "Error: Cannot open '" + Config::getInstance().getFile() + "'!\n" + std::string("") + RESET);
 	}
 
 	while (getline(ifs, line))
@@ -63,7 +63,7 @@ void					Config::check_config_file( void ) // throw( string & )
 		}
 		/* IGNORE COMMENTS */
 
-		string::difference_type str_diff;
+		std::string::difference_type str_diff;
 		count_s = count(line.begin(), line.end(), '{');
 		count_e = count(line.begin(), line.end(), '}');
 		count_sc = count(line.begin(), line.end(), ';');
@@ -154,10 +154,10 @@ void					Config::check_config_file( void ) // throw( string & )
 	if (err == 0 && braces.size() > 0)
 	{
 		ifs.close();
-		stringstream ss;
+		std::stringstream ss;
 		ss << RED;
-		ss << "Error: " << "Too many opening braces." << endl;
-		ss << "Missing closing brace of line " << braces.top() + 1 << endl;
+		ss << "Error: " << "Too many opening braces." << std::endl;
+		ss << "Missing closing brace of line " << braces.top() + 1 << std::endl;
 		ss << RESET;
 		throw ss.str();
 	}
@@ -166,27 +166,27 @@ void					Config::check_config_file( void ) // throw( string & )
 	ifs.close();
 }
 
-void					Config::parse_config( void ) // throw( string & )
+void					Config::parse_config( void ) // throw( std::string & )
 {
-	ifstream		ifs;
+	std::ifstream	ifs;
 	int				count_eq;
 	int				level = 0;
 	int				line_number = 0;
 	int				server_number = 0;
 	int				routes_number = 0;
-	string			line;
+	std::string		line;
 	ServerConfig	server_config;
 	ServerRoutes	server_route;
 
 	if ( Config::getInstance().getFile().size() == 0 )
 	{
-		throw string(RED + string("") + "Error: No config file specified.\n" + string("") + RESET);
+		throw std::string(RED + std::string("") + "Error: No config file specified.\n" + std::string("") + RESET);
 	}
 
 	ifs.open(Config::getInstance().getFile());
 	if (!ifs.is_open())
 	{
-		throw string(RED + string("") + "Error: Cannot open '" + Config::getInstance().getFile() + "'!\n" + string("") + RESET);
+		throw std::string(RED + std::string("") + "Error: Cannot open '" + Config::getInstance().getFile() + "'!\n" + std::string("") + RESET);
 	}
 
 	while (getline(ifs, line))
@@ -234,16 +234,16 @@ void					Config::parse_config( void ) // throw( string & )
 				// push server config
 				if ( server_config.getPort() == -1 )
 				{
-					throw(RED + string("Invalid configuration. Port is required for each server.\n") + RESET);
+					throw(RED + std::string("Invalid configuration. Port is required for each server.\n") + RESET);
 				}
 				if ( server_config.getHost() == "" )
 				{
-					throw(RED + string("Invalid configuration. Host is required for each server.\n") + RESET);
+					throw(RED + std::string("Invalid configuration. Host is required for each server.\n") + RESET);
 				}
 				// no routes required
 				// if ( server_config.getRouteCount() == 0)
 				// {
-				// 	throw(RED + string("Invalid configuration. At least on route is required for each server.\n") + RESET);
+				// 	throw(RED + std::string("Invalid configuration. At least on route is required for each server.\n") + RESET);
 				// }
 
 				for ( int i = 0; i < server_config.getRouteCount(); i++ )
@@ -265,7 +265,7 @@ void					Config::parse_config( void ) // throw( string & )
 			{
 				if ( server_route.getRoot() == "" )
 				{
-					throw(RED + string("Invalid configuration. Root path should be specified for each server.\n") + RESET);
+					throw(RED + std::string("Invalid configuration. Root path should be specified for each server.\n") + RESET);
 				}
 				// push Server Routes
 				server_config.addRoute( server_route );
@@ -292,8 +292,8 @@ void					Config::parse_config( void ) // throw( string & )
 				Config::line_error("Invalid syntax. Ex [key]=[value];", line, line_number);
 			}
 
-			string key = line.substr(0, line.find('='));
-			string value = line.substr(line.find('=') + 1);
+			std::string key = line.substr(0, line.find('='));
+			std::string value = line.substr(line.find('=') + 1);
 			// remove semicolon
 			value.resize( value.size() - 1 );
 
@@ -439,11 +439,11 @@ void					Config::parse_config( void ) // throw( string & )
 					else if (value == "off")
 						server_route.setDirListing(false);
 					else
-						throw string(RED + string("") + "Error: Invalid value for dir_listing.\n" + string("") + RESET);
+						throw std::string(RED + std::string("") + "Error: Invalid value for dir_listing.\n" + std::string("") + RESET);
 				}
 				else if (key == "index")
 				{
-					if ( value.find('.') == string::npos )
+					if ( value.find('.') == std::string::npos )
 					{
 						ifs.close();
 						Config::line_error("Invalid value for index. Ex: [filename].[ext]", line, line_number);
@@ -454,12 +454,12 @@ void					Config::parse_config( void ) // throw( string & )
 				{
 					if ( !isdigit(value[0]) )
 					{
-						throw(RED + string("") + "Invalid Syntax. Redirection code should be a positive number!\n" + string("") + RESET);
+						throw(RED + std::string("") + "Invalid Syntax. Redirection code should be a positive number!\n" + std::string("") + RESET);
 					}
 					server_route.setRedirectionCode(atoi(value.c_str()));
 					if ( server_route.getRedirectionCode() != 301 && server_route.getRedirectionCode() != 302 )
 					{
-						throw(RED + string("") + "Invalid Syntax. Redirection code should be either 301 and 302!\n" + string("") + RESET);
+						throw(RED + std::string("") + "Invalid Syntax. Redirection code should be either 301 and 302!\n" + std::string("") + RESET);
 					}
 				}
 				else if (key == "redirection_url")
@@ -505,9 +505,9 @@ void					Config::parse_config( void ) // throw( string & )
 	Config::getInstance().validate_config();
 }
 
-void Config::validate_config( void ) // throw( string & )
+void Config::validate_config( void ) // throw( std::string & )
 {
-	vector< ServerConfig > server_configs = Config::getInstance().getServers();
+	std::vector< ServerConfig > server_configs = Config::getInstance().getServers();
 	// check for duplicate server
 	for (int i = 0; i < server_configs.size(); i++)
 	{
@@ -517,31 +517,31 @@ void Config::validate_config( void ) // throw( string & )
 				server_configs[i].getPort() == server_configs[j].getPort() &&
 				server_configs[i].getName() == server_configs[j].getName() )
 			{
-				throw string(RED + string("") + "Error: Duplicate server configuration.\n" + string("") + RESET);
+				throw std::string(RED + std::string("") + "Error: Duplicate server configuration.\n" + std::string("") + RESET);
 			}
 		}
 	}
 	if ( server_configs.size() == 0 )
 	{
-		throw string(RED + string("") + "Error: No server configuration found.\n" + string("") + RESET);
+		throw std::string(RED + std::string("") + "Error: No server configuration found.\n" + std::string("") + RESET);
 	}
 }
 
-vector< ServerConfig > const &	Config::getServers( void ) const
+std::vector< ServerConfig > const &	Config::getServers( void ) const
 {
 	return (this->_servers);
 }
 
-ServerConfig const &	Config::getServer( int i ) const // throw( string & )
+ServerConfig const &	Config::getServer( int i ) const // throw( std::string & )
 {
 	if ( i >= 0 && i < Config::getInstance().getServerCount() )
 	{
 		return (Config::getInstance().getServers()[i]);
 	}
-	throw string(RED + string("") + "Error: Server index out of range.\n" + string("") + RESET);
+	throw std::string(RED + std::string("") + "Error: Server index out of range.\n" + std::string("") + RESET);
 }
 
-ServerConfig const &	Config::getServer( string const & host, int const & port ) const
+ServerConfig const &	Config::getServer( std::string const & host, int const & port ) const
 {
 	ServerConfig	srvr;
 	for ( int i = 0; i < Config::getInstance().getServerCount(); i++ )
@@ -558,7 +558,7 @@ ServerConfig const &	Config::getServer( string const & host, int const & port ) 
 	return this->getServerName( host, port );
 }
 
-ServerConfig const &	Config::getServerName( string const & host, int const & port ) const
+ServerConfig const &	Config::getServerName( std::string const & host, int const & port ) const
 {
 	ServerConfig	srvr;
 	for ( int i = 0; i < Config::getInstance().getServerCount(); i++ )
@@ -585,12 +585,12 @@ void					Config::addServer( ServerConfig const server_config )
 	this->_servers.push_back( server_config );
 }
 
-void					Config::line_error(string const & msg, string const & line, int const line_number) const // throw( string & );
+void					Config::line_error(std::string const & msg, std::string const & line, int const line_number) const // throw( std::string & );
 {
-	stringstream ss;
+	std::stringstream ss;
 	ss << RED;
-	ss << "Error: " << msg << endl;
-	ss << "line " << line_number + 1 << ": " << line << endl;
+	ss << "Error: " << msg << std::endl;
+	ss << "line " << line_number + 1 << ": " << line << std::endl;
 	ss << RESET;
 	throw ss.str();
 }

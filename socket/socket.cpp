@@ -171,15 +171,15 @@ int 	_socket::isfiledone(std::string outputfile)
 	content.close();
 	return (0);
 }
+
 int sizeOfFileNew(std::string f)
 {
-	ifstream in_file(f, ios::binary);
-	in_file.seekg(0, ios::end);
+	std::ifstream in_file(f, std::ios::binary);
+	in_file.seekg(0, std::ios::end);
 	int file_size = in_file.tellg();
 	in_file.close();
 	return(file_size);
 }
-
 
 long long int _socket::calculateSizeDone(std::string filename)
 {
