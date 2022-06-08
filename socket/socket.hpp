@@ -27,13 +27,13 @@ class _socket
 {
     private: 
 	
-        int port;
         int fd;
+        int port;
+        std::string host;
+	socklen_t addrLen;
         int max_fd;
 	int opt;
-        std::string host;
         struct sockaddr_in serverAddr;
-	socklen_t addrLen;
 	socklen_t clientAddr;
         fd_set struct_fd;
 	fd_set struct_read_fd;

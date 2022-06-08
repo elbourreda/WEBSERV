@@ -38,7 +38,7 @@ PARSEHSRCS	=	config/utils.h \
 all : $(NAME)
 
 $(NAME)		:	$(SRC) $(PARSESRCS) $(PARSEHSRCS) $(REQSRCS) $(REQHSRCS)
-	@$(CC) $(CFLAGS) $(PARSESRCS) $(REQSRCS) $(SRC) -o $(NAME)
+	@$(CC) $(CFLAGS) $(EFLAGS) $(PARSESRCS) $(REQSRCS) $(SRC) -o $(NAME)
 	
 clean		:
 	@rm -rf $(NAME)

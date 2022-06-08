@@ -206,9 +206,7 @@ void	_socket::ft_req_res(std::string file_name,int fd_sock)
 
 void _socket::ft_accept(int fd_sock)
 {
-    int 				size;
     std::string 		file_name;
-    struct timeval    	time;
 	char 				buff[1024];
 	int 				retVal;
 	

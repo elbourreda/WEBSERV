@@ -63,7 +63,8 @@ void					Config::check_config_file( void ) // throw( std::string & )
 		}
 		/* IGNORE COMMENTS */
 
-		std::string::difference_type str_diff;
+		// TO REVISE
+		std::string::difference_type str_diff = 0;
 		count_s = count(line.begin(), line.end(), '{');
 		count_e = count(line.begin(), line.end(), '}');
 		count_sc = count(line.begin(), line.end(), ';');
@@ -509,9 +510,9 @@ void Config::validate_config( void ) // throw( std::string & )
 {
 	std::vector< ServerConfig > server_configs = Config::getInstance().getServers();
 	// check for duplicate server
-	for (int i = 0; i < server_configs.size(); i++)
+	for (unsigned long i = 0; i < server_configs.size(); i++)
 	{
-		for (int j = i + 1; j < server_configs.size(); j++)
+		for (unsigned long j = i + 1; j < server_configs.size(); j++)
 		{
 			if ( server_configs[i].getHost() == server_configs[j].getHost() &&
 				server_configs[i].getPort() == server_configs[j].getPort() &&

@@ -89,7 +89,7 @@ void	Response::which_file( ServerConfig const & server, ServerRoutes const & rou
 		else
 		{
 			// AUTOINDEXING
-			for ( int i = 0; i < route.getIndexes().size(); i++ )
+			for ( unsigned long i = 0; i < route.getIndexes().size(); i++ )
 			{
 				std::string index_file = myRoot + path + "/" + route.getIndexes()[i];
 				if ( file_exists( index_file ) )
@@ -239,7 +239,7 @@ void		Response::start( void )
 
 	/*	400	*/
 	/* loop through method check if char is lowercase */
-	for ( int i = 0; i < this->_req.method.size(); i++ )
+	for ( unsigned long i = 0; i < this->_req.method.size(); i++ )
 	{
 		if ( islower(this->_req.method[i]) )
 		{
@@ -365,7 +365,7 @@ void	Response::send_file( void )
 
 bool	detectIndexRoute(std::string const & name)
 {
-	for (int i = 0; i < name.size(); i++)
+	for (unsigned long i = 0; i < name.size(); i++)
 		if (name[i] != '/')
 			return (false);
 	return (true);
