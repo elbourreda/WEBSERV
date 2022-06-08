@@ -109,8 +109,6 @@ void generate_dirlist(std::string const & o_file, std::string full_path, std::st
 	DIR				*dir;
 	struct dirent	*ent;
 	std::ofstream	myfile;
-	std::cout << "generate_dirlist" << std::endl;
-	std::cout << "o_file " << o_file << ", " << "full_path : " << full_path << ", req : " << req << std::endl;
 
 	myfile.open(o_file);
 	myfile << "<html><head><title>Index of " + full_path + " </title></head><body>" << std::endl;
@@ -130,10 +128,6 @@ void generate_dirlist(std::string const & o_file, std::string full_path, std::st
 				full_path += "/";
 			tmp = full_path;
 			tmp += ent->d_name;
-
-			std::cout << "FULLPATH " << full_path << std::endl;
-			std::cout << "FILENAME " << filename << std::endl;
-			std::cout << std::endl;
 
 			stat(tmp.c_str(), &sb);
 			myfile

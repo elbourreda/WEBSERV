@@ -49,7 +49,7 @@ class Response
 
 						Response ( int &, Request & );
 		ServerRoutes	which_route ( ServerConfig, string const & );
-		void			which_file( ServerConfig const &, ServerRoutes const &, string const & );
+		void			which_file( ServerConfig const &, ServerRoutes const &, string const &, string const & );
 		std::string		getContentType ( std::string & );
 		int				deleteMethod( std::string const & path, std::string const & rootdir );
 		int				getLengthFileCgi(std::string outputfile);

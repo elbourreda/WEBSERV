@@ -58,19 +58,18 @@ ServerRoutes	Response::which_route( ServerConfig server, string const & path )
 	return ( route );
 }
 
-void	Response::which_file( ServerConfig const & server, ServerRoutes const & route, string const & path )
+void	Response::which_file( ServerConfig const & server, ServerRoutes const & route, string const & path, string const & o_path )
 {
 	// CONTAINS DOT NOT
 	string	myRoot = ( route.getUploadDir() == "" ? route.getRoot() : route.getUploadDir() );
-	string	requested_file = myRoot + path;
+
+	string	requested_file = myRoot;
+	if (requested_file[requested_file.length() - 1] != '/')
+		requested_file += "/";
+	requested_file += path;
 
 	if ( !file_exists(requested_file) && !directory_exists(requested_file) )
 	{
-		cout << endl;
-		cout << "NOT " << route.getRoute() << endl;
-		cout << "NOT > " << route.getRoot() << endl;
-		cout << "NOT > " << myRoot << endl;
-		cout << "NOT FOUND HERE 1 " << requested_file << endl;
 		this->statusCode = 404;
 		this->responseFile = server.get404Page();
 	}
@@ -115,7 +114,7 @@ void	Response::which_file( ServerConfig const & server, ServerRoutes const & rou
 					this->statusCode = 200;
 					string output_file_name = concat("/tmp/.dirlist_", this->timestamp);
 					output_file_name += ".html";
-					generate_dirlist(output_file_name, myRoot + path, this->_req.RequestFile);
+					generate_dirlist(output_file_name, myRoot + path, o_path);
 					this->responseFile = output_file_name;
 				}
 			}
@@ -154,7 +153,7 @@ void	Response::which_file( ServerConfig const & server, ServerRoutes const & rou
 void		Response::start( void )
 {
 	string			host = this->_req.host;
-	string			path = this->_req.RequestFile;
+	string			original_path = this->_req.RequestFile, path = this->_req.RequestFile;
 	int				port = atoi(this->_req.port.c_str());
 	ServerConfig	server;
 	ServerRoutes	route;
@@ -165,7 +164,7 @@ void		Response::start( void )
 	route = this->which_route( server, path );
 	/*	WHICH ROUTE	*/
 
-	if ( route.getUploadDir() != "" )
+	if ( route.getUploadDir() == "" )
 	{
 		path = this->_req.RequestFile = path_it(this->_req.RequestFile, route.getRoute());
 	}
@@ -176,7 +175,7 @@ void		Response::start( void )
 
 
 	/*	REQUESTED FILE AND AUTOINDEX	*/
-	which_file( server, route, path );
+	which_file( server, route, path, original_path );
 	/*	REQUESTED FILE AND AUTOINDEX	*/
 
 	/*	502 CGI AVAILABILITY	*/
@@ -210,19 +209,15 @@ void		Response::start( void )
 	/*	201	*/
 	if ( route.getUploadDir() != "" && this->_req.method == "POST" )
 	{
-		cout << "STATUS CODE " << this->statusCode << endl;
 		if ( this->statusCode == 404 )
 		{
 			// rename uploaded file to requested file
 			string up_path = dirname((char *)(route.getUploadDir() + "/" + this->_req.RequestFile).c_str());
-			cout << "DIRNAME UPLOAD PATH " << up_path << endl;
 
 			if ( directory_exists(up_path) )
 			{
 				ifstream	i_file(this->_req.body_content, ios::binary);
-				cout << "I FILE " << this->_req.body_content << endl;
 				ofstream	end_file(route.getUploadDir() + "/" + this->_req.RequestFile, ios::binary);
-				cout << "END FILE " << route.getUploadDir() + "/" + this->_req.RequestFile << endl;
 				if (end_file && i_file)
 				{
 					end_file << i_file.rdbuf();
@@ -248,7 +243,7 @@ void		Response::start( void )
 				this->responseFile = server.get406Page();
 			}
 		}
-		cout << "STATUS CODE " << this->statusCode << endl;
+		remove(this->_req.body_content.c_str());
 	}
 	/*	201	*/
 
@@ -283,7 +278,7 @@ void		Response::start( void )
 	{
 		this->statusCode = deleteMethod(this->_req.RequestFile, route.getRoot());
 		if ( this->statusCode == 204 )
-			this->responseFile = server.get204Page();
+			this->responseFile = "";
 		else if ( this->statusCode == 403 )
 			this->responseFile = server.get403Page();
 		else if ( this->statusCode == 404 )
@@ -402,7 +397,16 @@ bool	detectIndexRoute(string const & name)
 // 204, 403, 404, 500
 int		Response::deleteMethod(string const & path, string const & rootdir)
 {
-	std::string fullpath = (rootdir + path);
+	std::string fullpath = rootdir;
+	if (fullpath[fullpath.size() - 1] != '/')
+		fullpath += "/";
+	fullpath += path;
+
+	if (fullpath[fullpath.size() - 1] == '/' && !(detectIndexRoute(path)))
+	{
+		while (fullpath[fullpath.size() - 1] == '/')
+			fullpath.pop_back();
+	}
 
 	if (detectIndexRoute(path))
 	{
