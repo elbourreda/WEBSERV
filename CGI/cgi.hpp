@@ -12,30 +12,6 @@
 
 extern char **environ;
 
-// class cgi
-// {
-// 	public:
-// 		// Response 
-// 		Request *reqs;
-
-// 		// atr
-// 		char **envs;
-// 		char **args;
-
-// 		int fd_input; 
-// 		int fd_output;
-// 		std::string outputfile;
-
-// 		// constt
-// 		cgi(){};
-// 		~cgi();
-// 		cgi(Request &reqs);
-// 		//methods
-// 		void SetCgiEnv(void);
-// 		void ExecuteCgi(void);
-// 		void SetUpArgs_fds(void);
-// };
-
 class cgi
 {
 	public:
@@ -46,6 +22,7 @@ class cgi
 		std::string		outputfile;
 		Request	*		req;
 		std::string		_pathcgi;
+		int				internal_error;
 
 						cgi ( void ) {};
 						cgi ( Request &res, std::string );
