@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   socket.cpp                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: murachid <murachid@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/06/08 21:56:06 by murachid          #+#    #+#             */
+/*   Updated: 2022/06/09 01:50:11 by murachid         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "socket.hpp"
 #include "../config/src/Config.hpp"
 
@@ -165,7 +177,7 @@ int 	_socket::isfiledone(std::string outputfile)
 		if (str == "Content-Length")
 		{
 			std::getline(inputfile, str, ':');
-			i = std::stoi(str);
+			i = std::atol(str.c_str());
 		}
 	}
 	content.close();
@@ -210,7 +222,7 @@ void _socket::ft_accept(int fd_sock)
 	char 				buff[1024];
 	int 				retVal;
 	
-    file_name = "new_" + std::to_string(fd_sock);
+    file_name = "/tmp/.cash_" + std::to_string(fd_sock);
 	memset(buff ,0 , 1024);
     retVal = recv(fd_sock, buff, 1024, 0);
 	if(retVal >= 0)
@@ -236,8 +248,10 @@ void _socket::ft_accept(int fd_sock)
 		}
     }
 	else
-		throw "error read";
-
+	{
+		remove(file_name.c_str());
+		ft_clear(fd_sock);
+	}
 }
 
 void _socket::start_socket()
