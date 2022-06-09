@@ -21,8 +21,7 @@ Request::Request(std::string req_path, int _fd)
 	this->IsReqBody = 0;
 	this->AutoindexOn = false;
     start_parsing();
-		
-
+	this->path_info = this->RequestFile;
 }
 
 

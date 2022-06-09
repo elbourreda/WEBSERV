@@ -29,6 +29,7 @@ class Request
 		bool 		AutoindexOn;
 		std::string indexfile;
 		std::string body_content;
+		std::string path_info;
 
 
         Request(void);
