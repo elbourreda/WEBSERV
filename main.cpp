@@ -18,20 +18,12 @@ int		main( int ac, char **av )
 			Config::getInstance().parse_config();
 			_socket socket;
 		}
-		catch (std::string & e)
-		{
-			std::cout << e;
-		}
-		catch (const char * e)
+		catch (const std::string & e)
 		{
 			std::cout << e;
 		}
 	}
-
 	else
-	{
 		std::cout << "Usage: ./server [config_file]" << std::endl;
-	}
-
 	return (0);
 }

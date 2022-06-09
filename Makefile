@@ -6,7 +6,7 @@
 #    By: murachid <murachid@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/03/17 17:18:51 by murachid          #+#    #+#              #
-#    Updated: 2022/03/17 17:18:52 by murachid         ###   ########.fr        #
+#    Updated: 2022/06/09 02:15:55 by murachid         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -17,11 +17,11 @@ CC		=	c++
 CFLAGS	=	-std=c++98
 EFLAGS	=	-Wall -Wextra -Werror
 DFLAGS	=	-g -fsanitize=address
-SRC		=	main.cpp socket/*.cpp
+SRC		=	main.cpp socket/socket.cpp
 
 REQSRCS		=	request/request.cpp \
 			CGI/cgi.cpp
-REQhSRCS	=	request/request.hpp \
+REQHSRCS	=	request/request.hpp \
 			CGI/cgi.hpp
 
 PARSESRCS	=	config/utils.cpp \
@@ -47,8 +47,5 @@ fclean		:	clean
 	@rm -rf $(NAME)
 
 re			:	fclean all
-
-test		:	re
-	@./$(NAME) config/webserv.conf
 
 .PHONY		:	all clean fclean re

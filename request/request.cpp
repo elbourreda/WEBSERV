@@ -27,7 +27,7 @@ Request::Request(std::string req_path, int _fd)
 
 void Request::start_parsing()
 {
-	std::string f = this->ROOTDIR + "/" + this->PathOfReq;
+	std::string f = this->PathOfReq;
 	std::ifstream file(f);
 
     if (file.good())
