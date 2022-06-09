@@ -21,7 +21,7 @@ class Response
 						Response ( void );
 		void			start ( void );
 		void			send_file ( void );
-		void			output_file ( ServerRoutes const & );
+		void			output_file ( ServerRoutes const &, ServerConfig const & );
 
 	public:
 		int				statusCode;

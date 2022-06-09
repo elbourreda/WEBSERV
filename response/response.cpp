@@ -141,14 +141,7 @@ void		Response::start( void )
 	route = this->which_route( server, path );
 	/*	WHICH ROUTE	*/
 
-	if ( route.getUploadDir() == "" )
-	{
-		path = this->_req.RequestFile = path_it(this->_req.RequestFile, route.getRoute());
-	}
-	else
-	{
-		path = this->_req.RequestFile = path_it(this->_req.RequestFile, route.getUploadDir());
-	}
+	path = this->_req.RequestFile = path_it(this->_req.RequestFile, route.getRoute());
 
 
 	/*	REQUESTED FILE AND AUTOINDEX	*/
@@ -265,7 +258,7 @@ void		Response::start( void )
 	}
 	/*	DELETE	*/
 
-	this->output_file( route );
+	this->output_file( route, server );
 
 	this->send_file();
 
@@ -273,7 +266,7 @@ void		Response::start( void )
 	remove((concat("/tmp/.dirlist_", this->timestamp) + ".html").c_str());
 }
 
-void	Response::output_file( ServerRoutes const & route )
+void	Response::output_file( ServerRoutes const & route, ServerConfig const & server )
 {
     std::ofstream   end_file;
 	std::string     file_name;
@@ -285,25 +278,45 @@ void	Response::output_file( ServerRoutes const & route )
 	{
 		if (this->statusCode >= 200 && this->statusCode <= 204)
 		{
-			if ( this->_req.IsPhpFile && route.getPhpCgi() != "" && this->statusCode != 201 && this->statusCode != 204 )
+			bool upload_cond = this->_req.method == "POST" ? route.getUploadDir() == "" : true;
+
+			if ( this->_req.IsPhpFile && route.getPhpCgi() != "" && upload_cond && this->statusCode != 204 )
 			{
 				// PHP CGI
 				this->_req.RequestFile = this->responseFile;
 
-				end_file << "HTTP/1.1 " << getStatusByCode(200) << "\r\n";
-
 				cgi _cgi( this->_req, route.getPhpCgi() );
-				this->responseFile = _cgi.outputfile;
 
-				end_file << "Content-Length: " << getLengthFileCgi(this->responseFile) << "\r\n";
-				std::ifstream i_file(this->responseFile, std::ios::binary);
-				if (i_file)
+				if ( _cgi.internal_error == 1 )
 				{
-					end_file << i_file.rdbuf();
+					this->statusCode = 500;
+					this->responseFile = server.get500Page();
+					end_file << "HTTP/1.1 " << getStatusByCode(this->statusCode) << "\r\n";
+					end_file << "Content-Length: " << calculateSize(this->responseFile) << "\r\n";
+					end_file << "Content-Type: " << getContentType(this->responseFile) << "\r\n";
+					end_file << "\r\n";
+					std::ifstream i_file(this->responseFile, std::ios::binary);
+					if (i_file)
+					{
+						end_file << i_file.rdbuf();
+					}
+					i_file.close();
 				}
-				i_file.close();
+				else
+				{
+					// this->statusCode = 200;
+					this->responseFile = _cgi.outputfile;
+					end_file << "HTTP/1.1 " << getStatusByCode(this->statusCode) << "\r\n";
+					end_file << "Content-Length: " << getLengthFileCgi(this->responseFile) << "\r\n";
+					std::ifstream i_file(this->responseFile, std::ios::binary);
+					if (i_file)
+					{
+						end_file << i_file.rdbuf();
+					}
+					i_file.close();
 
-				remove(this->responseFile.c_str());
+					remove(this->responseFile.c_str());
+				}
 			}
 
 			else
