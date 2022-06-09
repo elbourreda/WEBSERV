@@ -17,7 +17,8 @@ void cgi::SetCgiEnv( void )
 	setenv("SERVER_PROTOCOL", "HTTP/1.1", 1);
 	setenv("GATEWAY_INTERFACE", "CGI/1.1", 1);
 	setenv("SERVER_SOFTWARE", "Webserv", 1);
-	setenv("REDIRECT_STATUS", "200",      1);
+	setenv("REDIRECT_STATUS", "200", 1);
+	setenv("PATH_INFO", (*this->req).path_info.c_str(), 1);
 	setenv("REQUEST_METHOD", (*this->req).method.c_str(), 1);
 	setenv("SCRIPT_FILENAME", ((*this->req).RequestFile).c_str() , 1);
 	setenv("SERVER_PORT", (*this->req).port.c_str(),1);
