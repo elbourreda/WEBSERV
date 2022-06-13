@@ -143,7 +143,7 @@ void Request::PrepareMsgBody(std::string line)
     if (this->method == "POST")
     {
         std::ifstream myfile;
-        this->body_content = "/tmp/.REQ_NO_" + std::to_string(this->fd) + "_BODY";
+        this->body_content = concat("/tmp/.REQ_NO_", this->fd) + "_BODY";
         std::ofstream reqBody(body_content);
 
         myfile.open(this->PathOfReq, std::fstream::binary);

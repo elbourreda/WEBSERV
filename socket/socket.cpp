@@ -222,7 +222,7 @@ void _socket::ft_accept(int fd_sock)
 	char 				buff[1024];
 	int 				retVal;
 	
-    file_name = "/tmp/.cash_" + std::to_string(fd_sock);
+    file_name = concat("/tmp/.cash_", fd_sock);
 	memset(buff ,0 , 1024);
     retVal = recv(fd_sock, buff, 1024, 0);
 	if(retVal >= 0)
