@@ -47,19 +47,20 @@ class Request
 
 		void printAll(void)
 		{
-			std::cout << "PathOfReq 	= "  << PathOfReq 		<< std::endl; 		
+			// std::cout << "PathOfReq 	= "  << PathOfReq 		<< std::endl; 		
 			std::cout << "method 		= "  << method 			<< std::endl; 		
 			std::cout << "RequestFile 	= "  << RequestFile 	<< std::endl; 	
-			std::cout << "QueryString 	= "  << QueryString 	<< std::endl; 	
+			// std::cout << "QueryString 	= "  << QueryString 	<< std::endl; 	
 			std::cout << "host 		= "  << host 			<< std::endl; 			
 			std::cout << "Content_type 	= "  << Content_type 	<< std::endl; 	
 			std::cout << "Content_length  = "  << Content_length << std::endl;	
 			std::cout << "IsPhpFile 	= "  << IsPhpFile 		<< std::endl;    	
 			std::cout << "IsReqBody 	= "  << IsReqBody 		<< std::endl;    	
-			std::cout << "Connection 	= "  << Connection 		<< std::endl;    	
+			// std::cout << "Connection 	= "  << Connection 		<< std::endl;    	
 			std::cout << "port 	= "  << port 		<< std::endl;    	
-			std::cout << "fd 	= "  << fd 		<< std::endl;    	
+			// std::cout << "fd 	= "  << fd 		<< std::endl;    	
 			std::cout << "ROOTDIR 	= "  << ROOTDIR 		<< std::endl;    	
+			std::cout << std::endl;    	
 		}
 };
 

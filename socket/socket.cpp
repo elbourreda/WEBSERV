@@ -6,7 +6,7 @@
 /*   By: murachid <murachid@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/08 21:56:06 by murachid          #+#    #+#             */
-/*   Updated: 2022/06/09 01:50:11 by murachid         ###   ########.fr       */
+/*   Updated: 2022/06/09 04:07:27 by murachid         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,7 @@ void _socket::bind_socket()
 	serverAddr.sin_port = htons(port);
     serverAddr.sin_addr.s_addr = inet_addr(host.c_str());
 	if(bind(fd, (struct sockaddr *)&serverAddr, sizeof(serverAddr)) == -1)
-        throw  "error fcntl";
+        throw  "Sorry! The port you used could already be reserved!";
 }
 
 void _socket::listen_socket()
@@ -186,30 +186,19 @@ int 	_socket::isfiledone(std::string outputfile)
 
 int sizeOfFileNew(std::string f)
 {
+	int	file_size;
 	std::ifstream in_file(f, std::ios::binary);
+
 	in_file.seekg(0, std::ios::end);
-	int file_size = in_file.tellg();
+	file_size = in_file.tellg();
 	in_file.close();
+
 	return(file_size);
-}
-
-long long int _socket::calculateSizeDone(std::string filename)
-{
-	long int ans;
-	FILE* fp = fopen(filename.c_str(), "r");
-
-	if (fp == NULL) 
-		return 0;
-	fseek(fp, 0L, SEEK_END);
-	ans = ftell(fp);
-	fclose(fp);
-	return ans;
 }
 
 void	_socket::ft_req_res(std::string file_name,int fd_sock)
 {
 	Request _request(file_name, fd_sock);
-    _request.printAll();
 	if(FD_ISSET(fd_sock, &struct_write_fd))
 		Response _response(fd_sock, _request);
 	remove(file_name.c_str());
@@ -235,7 +224,6 @@ void _socket::ft_accept(int fd_sock)
         int _content_lenght = isfiledone(file_name);
 		if (_content_lenght == -2)
 			ft_req_res(file_name, fd_sock);
-			
         if (_content_lenght > 0 )
         {
 			if(a >= (_content_lenght + b))
@@ -271,17 +259,10 @@ void _socket::start_socket()
 
 		if ( used_port_it == used_port.end() )
 		{
-			try
-			{
-				this->creat_socket(); 
-				this->bind_socket();
-				this->listen_socket();
-				this->store_fd();
-			}
-			catch(const std::exception &e)
-			{
-				std::cerr << e.what() << '\n';
-			}
+			this->creat_socket(); 
+			this->bind_socket();
+			this->listen_socket();
+			this->store_fd();
 			used_port.push_back(port);
 		}
     }

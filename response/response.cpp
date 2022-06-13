@@ -219,8 +219,7 @@ void		Response::start( void )
 
 	/*	30X REDIRECTION	*/
 	if ( (route.getRedirectionCode() == 301 || route.getRedirectionCode() == 302)
-		&& route.getRedirectionUrl() != ""
-		&& this->statusCode == 200 )
+		&& route.getRedirectionUrl() != "" )
 	{
 		std::string header;
 		header = "HTTP/1.1 " + getStatusByCode(route.getRedirectionCode()) + "\r\n";

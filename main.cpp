@@ -22,6 +22,10 @@ int		main( int ac, char **av )
 		{
 			std::cout << e;
 		}
+		catch(const char * e)
+		{
+			std::cerr << e << '\n';
+		}
 	}
 	else
 		std::cout << "Usage: ./server [config_file]" << std::endl;

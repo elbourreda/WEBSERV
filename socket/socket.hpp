@@ -6,7 +6,7 @@
 /*   By: murachid <murachid@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/08 21:56:09 by murachid          #+#    #+#             */
-/*   Updated: 2022/06/08 21:56:10 by murachid         ###   ########.fr       */
+/*   Updated: 2022/06/09 03:53:49 by murachid         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,7 +66,6 @@ class _socket
         void search(int socket);
         int max(int x, int y);
         int	        GetLengthFileCgiDone(std::string outputfile, int n);
-        long long int   calculateSizeDone(std::string filename);
         int             isfiledone(std::string outputfile);
         void	        ft_req_res(std::string file_name, int fd_sock);
         _socket();
