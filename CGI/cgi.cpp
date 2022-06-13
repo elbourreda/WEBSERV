@@ -33,7 +33,7 @@ void cgi::SetCgiEnv( void )
 	{
 		setenv("CONTENT_TYPE", ((*this->req).Content_type.erase((*this->req).Content_type.length()-1)).c_str(), 1);
 		setenv("QUERY_STRING", "", 1);
-		setenv("CONTENT_LENGTH", std::to_string(((*this->req).Content_length)).c_str(), 1);
+		setenv("CONTENT_LENGTH", concat("", ((*this->req).Content_length)).c_str(), 1);
 	}
 	this->args[0] = (char *)this->_pathcgi.c_str();
 	this->args[1] = NULL;
